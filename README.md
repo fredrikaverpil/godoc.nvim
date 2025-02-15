@@ -24,6 +24,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 ```lua
 {
     "fredrikaverpil/godoc.nvim",
+    version = "*",
     dependencies = {
         "folke/snacks.nvim", -- optional, for Snacks picker
     },
