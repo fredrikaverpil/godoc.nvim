@@ -7,7 +7,7 @@ A Neovim plugin that provides quick access to Go documentation using Go's native
 
 - Browse and search Go standard library packages and project packages.
 - Native syntax highlighting for Go documentation.
-- Optionally leverage [`stdsym`](github.com/lotusirous/godocsym/stdsym) for
+- Optionally leverage [`stdsym`](https://github.com/lotusirous/gostdsym) for
   symbols searching.
 - Supports native Neovim picker and optionally the
   [snacks.nvim](https://github.com/folke/snacks.nvim) picker.
@@ -35,7 +35,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 ### Optionally install `stdsym`
 
-Install [`stdsym`](github.com/lotusirous/godocsym/stdsym) for ability to search
+Install [`stdsym`](https://github.com/lotusirous/gostdsym) for ability to search
 standard library symbols.
 
 ```bash
