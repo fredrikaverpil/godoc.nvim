@@ -71,8 +71,8 @@ The plugin provides the following command:
 ### Examples
 
 ```vim
-:GoDoc             " browse all standard library packages
-:GoDoc strings     " view documentation for the strings package
+:GoDoc                  " browse all standard library packages
+:GoDoc strings          " view documentation for the strings package
 :GoDoc strings.Builder  " view documentation for strings.Builder
 ```
 
