@@ -39,7 +39,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
     dependencies = {
         "folke/snacks.nvim", -- optional
     },
-    build = "go install github.com/lotusirous/godocsym/stdsym@latest", -- optional
+    build = "go install github.com/lotusirous/gostdsym/stdsym@latest", -- optional
     cmd = { "GoDoc" }
     opts = {},
 }
