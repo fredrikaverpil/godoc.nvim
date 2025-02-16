@@ -77,7 +77,7 @@ The plugin provides the following command:
 ```
 
 ```lua
-local godoc require("godoc.nvim")
+local godoc = require("godoc.nvim")
 godoc.show_native_picker()  -- search packages using the native Neovim picker
 godoc.show_snacks_picker()  -- search packages using the Snacks.nvim picker
 godoc.show_documentation("strings.Builder")  -- view docs for strings.Builder
