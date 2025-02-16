@@ -1,6 +1,5 @@
 ![godoc](https://github.com/user-attachments/assets/10e8403a-0384-4599-bc9f-9a0ffb919994)
 
-
 # godoc.nvim
 
 Fuzzy search Go std lib packages and project packages.
@@ -86,8 +85,7 @@ godoc.show_documentation("strings.Builder")  -- view docs for strings.Builder
 
 ## Configuration
 
-The plugin can be configured by passing options to the setup function. These are
-the defaults:
+These are the defaults:
 
 ```lua
 opts = {
