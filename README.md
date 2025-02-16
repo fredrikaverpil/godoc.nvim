@@ -1,6 +1,6 @@
 # godoc.nvim
 
-Fuzzy search Go standard library and project packages and open in Neovim split.
+Fuzzy search Go std lib packages and project packages.
 
 ## Screenshots
 
