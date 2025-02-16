@@ -7,7 +7,7 @@ Fuzzy search Go std lib packages and project packages.
 
 ## Screenshots
 
-![Snacks picker](https://github.com/user-attachments/assets/f1b4270d-76d0-4823-a090-ad3275ecbebf)
+![Snacks picker](https://github.com/user-attachments/assets/928593b8-29d1-422a-a799-9d8617c086ba)
 _Screenshot is showing the Snacks picker._
 
 <details>
@@ -109,6 +109,7 @@ opts = {
                     { -- Left side (input and list)
                         box = "vertical",
                         width = 0.3, -- List and input take up 30% of the width
+                        border = "rounded",
                         { win = "input", height = 1, border = "bottom" },
                         { win = "list", border = "none" },
                     },
