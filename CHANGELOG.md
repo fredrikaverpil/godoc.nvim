@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.4](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.1.3...v1.1.4) (2025-02-16)
+
+
+### Bug Fixes
+
+* remove debug print ([#15](https://github.com/fredrikaverpil/godoc.nvim/issues/15)) ([3133b79](https://github.com/fredrikaverpil/godoc.nvim/commit/3133b79fa03c4fb86d397d20f983af14ced788b7))
+
 ## [1.1.3](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.1.2...v1.1.3) (2025-02-16)
 
 
