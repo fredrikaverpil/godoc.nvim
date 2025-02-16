@@ -1,7 +1,18 @@
 # godoc.nvim
 
-A Neovim plugin that provides quick access to Go documentation using Go's native
-`go doc` command.
+Fuzzy search Go standard library and project packages and open in Neovim split.
+
+## Screenshots
+
+![Snacks picker](https://github.com/user-attachments/assets/f1b4270d-76d0-4823-a090-ad3275ecbebf)
+_Screenshot is showing the Snacks picker._
+
+<details>
+<summary>Native picker</summary>
+
+![Native picker](https://github.com/user-attachments/assets/7b875776-a098-43a2-a49e-9cfb31cb6eed)
+
+</details>
 
 ## Features
 
@@ -15,7 +26,7 @@ A Neovim plugin that provides quick access to Go documentation using Go's native
 ## Requirements
 
 - Neovim >= 0.8.0
-- Go installation with `go doc` command available
+- Go installation with `go doc` and `go list` commands available
 
 ## Installation
 
@@ -26,20 +37,12 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
     "fredrikaverpil/godoc.nvim",
     version = "*",
     dependencies = {
-        "folke/snacks.nvim", -- optional, for Snacks picker
+        "folke/snacks.nvim", -- optional
     },
+    build = "go install github.com/lotusirous/godocsym/stdsym@latest", -- optional
     cmd = { "GoDoc" }
     opts = {},
 }
-```
-
-### Optionally install `stdsym`
-
-Install [`stdsym`](https://github.com/lotusirous/gostdsym) for ability to search
-standard library symbols.
-
-```bash
-go install github.com/lotusirous/godocsym/stdsym@latest
 ```
 
 ## Usage
@@ -76,7 +79,7 @@ opts = {
         type = "split", -- split or vsplit
     },
     highlighting = {
-        language = "go", -- the language used for syntax highlighting
+        language = "go", -- the tree-sitter parser used for syntax highlighting
     },
     picker = {
         type = "native", -- native or snacks
@@ -118,6 +121,6 @@ documentation system:
 
 Contributions are welcome! Please feel free to submit a pull request.
 
-## License
-
-MIT - See [LICENSE](LICENSE) for more information.
+I would be extra interested in discussions and contributions around improving
+the syntax highlighting of `go doc` output, as it is currently quite messy to
+just apply the syntax highlighting of Go syntax.
