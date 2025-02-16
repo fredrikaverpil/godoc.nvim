@@ -2,6 +2,7 @@ local M = {}
 
 -- Default configuration.
 M.defaults = {
+	command = "GoDoc",
 	window = {
 		type = "split", -- split or vsplit
 	},
@@ -64,7 +65,7 @@ function M.setup(opts)
 	end
 
 	-- Create user command
-	vim.api.nvim_create_user_command("GoDoc", function(args)
+	vim.api.nvim_create_user_command(M.defaults.command, function(args)
 		-- if args were passed, show documentation directly
 		if args.args ~= nil and args.args ~= "" then
 			M.show_documentation(args.args)
