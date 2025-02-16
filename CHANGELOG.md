@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.0.0...v1.1.0) (2025-02-16)
+
+
+### Features
+
+* customize command ([#5](https://github.com/fredrikaverpil/godoc.nvim/issues/5)) ([c396aa5](https://github.com/fredrikaverpil/godoc.nvim/commit/c396aa5051f234eb3eea1714817af823cf9e011b))
+
 ## 1.0.0 (2025-02-15)
 
 
