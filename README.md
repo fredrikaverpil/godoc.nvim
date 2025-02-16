@@ -53,6 +53,12 @@ The plugin provides the following command:
 - `:GoDoc <package>` - Directly open documentation for the specified package or
   symbol.
 
+> [!WARNING]
+>
+> The `:GoDoc` command is also used by
+> [x-ray/go.nvim](https://github.com/ray-x/go.nvim). You can configure this
+> plugin's command to something else if you wish.
+
 ### Examples
 
 ```vim
@@ -75,6 +81,7 @@ the defaults:
 
 ```lua
 opts = {
+    command = "GoDoc", -- the desired Vim command to use
     window = {
         type = "split", -- split or vsplit
     },

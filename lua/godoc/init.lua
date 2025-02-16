@@ -1,7 +1,8 @@
 local M = {}
 
 -- Default configuration.
-M.defaults = {
+M.config = {
+	command = "GoDoc",
 	window = {
 		type = "split", -- split or vsplit
 	},
@@ -35,7 +36,7 @@ M.defaults = {
 }
 
 -- Set up syntax highlighting
-vim.treesitter.language.register(M.defaults.highlighting.language, { "godoc" })
+vim.treesitter.language.register(M.config.highlighting.language, { "godoc" })
 
 -- Check if go is available
 local function check_requirements()
@@ -54,7 +55,7 @@ end
 
 -- Set up the plugin with user config
 function M.setup(opts)
-	M.defaults = vim.tbl_deep_extend("force", M.defaults, opts or {})
+	M.config = vim.tbl_deep_extend("force", M.config, opts or {})
 
 	-- Check requirements
 	local ok, err = check_requirements()
@@ -64,19 +65,19 @@ function M.setup(opts)
 	end
 
 	-- Create user command
-	vim.api.nvim_create_user_command("GoDoc", function(args)
+	vim.api.nvim_create_user_command(M.config.command, function(args)
 		-- if args were passed, show documentation directly
 		if args.args ~= nil and args.args ~= "" then
 			M.show_documentation(args.args)
 			return
 		end
 
-		if M.defaults.picker.type == "native" then
+		if M.config.picker.type == "native" then
 			M.show_native_picker()
-		elseif M.defaults.picker.type == "snacks" then
+		elseif M.config.picker.type == "snacks" then
 			M.show_snacks_picker()
 		else
-			vim.notify("Picker not implemented: " .. M.defaults.picker.type, vim.log.levels.ERROR)
+			vim.notify("Picker not implemented: " .. M.config.picker.type, vim.log.levels.ERROR)
 		end
 	end, { nargs = "?" })
 end
@@ -195,17 +196,12 @@ function M.show_snacks_picker()
 		},
 	}
 
-	if
-		M.defaults
-		and M.defaults.picker
-		and M.defaults.picker.snacks_options
-		and M.defaults.picker.snacks_options.layout
-	then
-		opts.layout = M.defaults.picker.snacks_options.layout
+	if M.config and M.config.picker and M.config.picker.snacks_options and M.config.picker.snacks_options.layout then
+		opts.layout = M.config.picker.snacks_options.layout
 	end
 
-	if M.defaults and M.defaults.picker and M.defaults.picker.snacks_options.win then
-		opts.win = M.defaults.picker.snacks_options.win
+	if M.config and M.config.picker and M.config.picker.snacks_options.win then
+		opts.win = M.config.picker.snacks_options.win
 	end
 
 	snacks.picker.pick(opts)
@@ -241,9 +237,9 @@ function M.show_documentation(package_name)
 	vim.api.nvim_set_option_value("filetype", "godoc", { buf = buf })
 
 	-- Open window based on config
-	if M.defaults.window.type == "split" then
+	if M.config.window.type == "split" then
 		vim.cmd("split")
-	elseif M.defaults.window.type == "vsplit" then
+	elseif M.config.window.type == "vsplit" then
 		vim.cmd("vsplit")
 	else -- floating
 		-- TODO: Implement floating window?
