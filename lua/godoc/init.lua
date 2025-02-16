@@ -83,6 +83,52 @@ function M.setup(opts)
 	end, { nargs = "?" })
 end
 
+-- Fall back to using `go list std` if stdsym binary was not available
+local function get_std_packages_golist()
+	local std_packages = vim.fn.systemlist("go list std")
+	if vim.v.shell_error ~= 0 then
+		vim.notify("Failed to get package list using 'go list'", vim.log.levels.ERROR)
+		return {}
+	end
+	return std_packages
+end
+
+-- Get standard library packages from stdsym, if binary is available
+local function get_std_packages_stdsym()
+	local std_packages = {}
+	local stdsym = vim.fn.executable("stdsym")
+	if stdsym == 1 then
+		std_packages = vim.fn.systemlist("stdsym")
+		if vim.v.shell_error ~= 0 then
+			vim.notify("Failed to get package list using stdsym, falling back on 'go list'", vim.log.levels.ERROR)
+			return get_std_packages_golist()
+		end
+	end
+	return std_packages
+end
+
+-- Get project and dependency packages if in a Go module
+local function get_gomod_packages(std_packages)
+	local all_packages = std_packages
+	local go_mod = vim.fn.findfile("go.mod", ".;")
+	if go_mod ~= "" then
+		-- Get the directory containing go.mod
+		local mod_dir = vim.fn.fnamemodify(go_mod, ":p:h")
+		vim.notify(vim.inspect(mod_dir))
+		-- Execute go list all in the module directory
+		local mod_packages = vim.fn.systemlist(string.format("cd %s && go list -e all", vim.fn.shellescape(mod_dir)))
+		if vim.v.shell_error == 0 then
+			-- Combine lists and remove duplicates
+			for _, pkg in ipairs(mod_packages) do
+				table.insert(all_packages, pkg)
+			end
+			all_packages = vim.fn.uniq(all_packages)
+			return all_packages
+		end
+	end
+	return std_packages
+end
+
 -- Cache for package list
 local package_cache = nil
 local package_cache_time = 0
@@ -101,36 +147,9 @@ local function get_packages()
 		return package_cache
 	end
 
-	-- Get standard library packages from stdsym, if binary is available
-	local std_packages = {}
-	local stdsym = vim.fn.executable("stdsym")
-	if stdsym == 1 then
-		std_packages = vim.fn.systemlist("stdsym") -- TODO: make note in README about installing and updating this
-		if vim.v.shell_error ~= 0 then
-			vim.notify("Failed to get package list using stdsym", vim.log.levels.ERROR)
-			return {}
-		end
-	else
-		-- Fall back to using `go list std` if stdsym binary was not available
-		std_packages = vim.fn.systemlist("go list std")
-		if vim.v.shell_error ~= 0 then
-			vim.notify("Failed to get package list using go", vim.log.levels.ERROR)
-			return {}
-		end
-	end
-
-	-- Get project and dependency packages if in a Go module
-	local all_packages = std_packages
-	if vim.fn.findfile("go.mod", ".;") ~= "" then
-		local mod_packages = vim.fn.systemlist("go list all")
-		if vim.v.shell_error == 0 then
-			-- Combine lists and remove duplicates
-			for _, pkg in ipairs(mod_packages) do
-				table.insert(all_packages, pkg)
-			end
-			all_packages = vim.fn.uniq(all_packages)
-		end
-	end
+	local std_packages = get_std_packages_stdsym()
+	local gomod_packages = get_gomod_packages(std_packages)
+	local all_packages = vim.fn.uniq(gomod_packages)
 
 	-- Update cache
 	package_cache = all_packages
