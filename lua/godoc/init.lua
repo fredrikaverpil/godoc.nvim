@@ -147,7 +147,7 @@ local function get_packages()
 	end
 
 	local std_packages = get_std_packages_stdsym()
-	local gomod_packages = get_gomod_packages(std_packages)
+	local gomod_packages = get_gomod_packages(std_packages) -- TODO: this does not return gomod_packages...
 	local all_packages = vim.fn.uniq(gomod_packages)
 
 	-- Update cache
