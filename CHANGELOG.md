@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.1.2...v1.1.3) (2025-02-16)
+
+
+### Bug Fixes
+
+* ignore errors from go list using -e flag ([#13](https://github.com/fredrikaverpil/godoc.nvim/issues/13)) ([f49cbe2](https://github.com/fredrikaverpil/godoc.nvim/commit/f49cbe2e82b599aa9a0703ade388be3f093128c7))
+
 ## [1.1.2](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.1.1...v1.1.2) (2025-02-16)
 
 
