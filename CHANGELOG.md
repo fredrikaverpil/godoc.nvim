@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.1.1...v1.1.2) (2025-02-16)
+
+
+### Bug Fixes
+
+* add border to left box ([#10](https://github.com/fredrikaverpil/godoc.nvim/issues/10)) ([f70a49a](https://github.com/fredrikaverpil/godoc.nvim/commit/f70a49a872e0bf551c252f1af185601202a3eb69))
+
 ## [1.1.1](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.1.0...v1.1.1) (2025-02-16)
 
 
