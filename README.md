@@ -27,6 +27,7 @@ _Screenshot is showing the Snacks picker._
 
 - Neovim >= 0.8.0
 - Go installation with `go doc` and `go list` commands available
+- Tree-sitter
 
 ## Installation
 
