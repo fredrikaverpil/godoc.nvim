@@ -20,6 +20,7 @@ M.config = {
 					{ -- Left side (input and list)
 						box = "vertical",
 						width = 0.3, -- List and input take up 30% of the width
+						border = "rounded",
 						{ win = "input", height = 1, border = "bottom" },
 						{ win = "list", border = "none" },
 					},
