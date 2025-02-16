@@ -1,3 +1,6 @@
+![godoc](https://github.com/user-attachments/assets/10e8403a-0384-4599-bc9f-9a0ffb919994)
+
+
 # godoc.nvim
 
 Fuzzy search Go std lib packages and project packages.
