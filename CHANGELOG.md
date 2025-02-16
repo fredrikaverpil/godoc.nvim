@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.1.0...v1.1.1) (2025-02-16)
+
+
+### Bug Fixes
+
+* typo ([#7](https://github.com/fredrikaverpil/godoc.nvim/issues/7)) ([7d93532](https://github.com/fredrikaverpil/godoc.nvim/commit/7d93532c285070793336364044e16f13d53aa00a))
+
 ## [1.1.0](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.0.0...v1.1.0) (2025-02-16)
 
 
