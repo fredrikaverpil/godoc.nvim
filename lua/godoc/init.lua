@@ -197,12 +197,8 @@ function M.show_snacks_picker()
 		},
 	}
 
-	if M.config and M.config.picker and M.config.picker.snacks_options and M.config.picker.snacks_options.layout then
-		opts.layout = M.config.picker.snacks_options.layout
-	end
-
-	if M.config and M.config.picker and M.config.picker.snacks_options.win then
-		opts.win = M.config.picker.snacks_options.win
+	if M.config and M.config.picker and M.config.picker.snacks_options then
+		opts = vim.tbl_extend("force", opts, M.config.picker.snacks_options)
 	end
 
 	snacks.picker.pick(opts)
