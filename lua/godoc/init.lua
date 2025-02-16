@@ -114,7 +114,6 @@ local function get_gomod_packages(std_packages)
 	if go_mod ~= "" then
 		-- Get the directory containing go.mod
 		local mod_dir = vim.fn.fnamemodify(go_mod, ":p:h")
-		vim.notify(vim.inspect(mod_dir))
 		-- Execute go list all in the module directory
 		local mod_packages = vim.fn.systemlist(string.format("cd %s && go list -e all", vim.fn.shellescape(mod_dir)))
 		if vim.v.shell_error == 0 then
