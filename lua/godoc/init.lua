@@ -58,15 +58,15 @@ end
 function M.setup(opts)
 	M.config = vim.tbl_deep_extend("force", M.config, opts or {})
 
-	-- Check requirements
-	local ok, err = check_requirements()
-	if not ok then
-		vim.notify(string.format("godoc.nvim: %s", err), vim.log.levels.ERROR)
-		return
-	end
-
 	-- Create user command
 	vim.api.nvim_create_user_command(M.config.command, function(args)
+		-- Check requirements
+		local ok, err = check_requirements()
+		if not ok then
+			vim.notify(string.format("godoc.nvim: %s", err), vim.log.levels.ERROR)
+			return
+		end
+
 		-- if args were passed, show documentation directly
 		if args.args ~= nil and args.args ~= "" then
 			M.show_documentation(args.args)
