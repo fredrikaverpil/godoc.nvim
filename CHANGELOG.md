@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.5](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.1.4...v1.1.5) (2025-02-17)
+
+
+### Bug Fixes
+
+* missing returns, better error handling ([#17](https://github.com/fredrikaverpil/godoc.nvim/issues/17)) ([9ae0fea](https://github.com/fredrikaverpil/godoc.nvim/commit/9ae0fea63cb72bfe9025785377d77490229e5a79))
+
 ## [1.1.4](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.1.3...v1.1.4) (2025-02-16)
 
 
