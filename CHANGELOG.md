@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.1.5...v1.2.0) (2025-02-17)
+
+
+### Features
+
+* add telescope picker support ([#19](https://github.com/fredrikaverpil/godoc.nvim/issues/19)) ([2707cf3](https://github.com/fredrikaverpil/godoc.nvim/commit/2707cf3d825ec5fde5752617d89940402e804e88))
+
 ## [1.1.5](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.1.4...v1.1.5) (2025-02-17)
 
 
