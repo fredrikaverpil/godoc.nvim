@@ -75,6 +75,8 @@ function M.setup(opts)
 
 		if M.config.picker.type == "native" then
 			M.show_native_picker()
+		elseif M.config.picker.type == "telescope" then
+			M.show_telescope_picker()
 		elseif M.config.picker.type == "snacks" then
 			M.show_snacks_picker()
 		else
@@ -180,6 +182,78 @@ function M.show_native_picker()
 			M.show_documentation(choice)
 		end
 	end)
+end
+
+-- Show telescope picker
+function M.show_telescope_picker()
+	local action_state = require("telescope.actions.state")
+	local finders = require("telescope.finders")
+	local pickers = require("telescope.pickers")
+	local previewers = require("telescope.previewers")
+	local conf = require("telescope.config").values
+
+	local function go_packages_finder(opts, ctx)
+		local output = get_packages()
+		local items = {}
+		for _, package_name in ipairs(output) do
+			table.insert(items, {
+				value = package_name,
+				display = package_name,
+				ordinal = package_name,
+			})
+		end
+		return items
+	end
+
+	-- Create custom previewer
+	local package_previewer = previewers.new_buffer_previewer({
+		title = "Package Documentation",
+		get_buffer_by_name = function(_, entry)
+			return entry.value
+		end,
+		define_preview = function(self, entry)
+			local docs = M.get_documentation(entry.value)
+			vim.api.nvim_buf_set_lines(self.state.bufnr, 0, -1, false, docs)
+			vim.api.nvim_set_option_value("filetype", "godoc", { buf = self.state.bufnr })
+		end,
+	})
+
+	local function on_package_select(prompt_bufnr)
+		local selection = action_state.get_selected_entry()
+		if selection then
+			M.show_documentation(selection.value)
+		end
+	end
+
+	local opts = {
+		finder = finders.new_table({
+			results = go_packages_finder(),
+			entry_maker = function(entry)
+				return {
+					display = entry.display,
+					value = entry.value,
+					ordinal = entry.ordinal,
+				}
+			end,
+		}),
+		sorter = conf.generic_sorter(),
+		previewer = package_previewer,
+		attach_mappings = function(_, map)
+			map("i", "<CR>", function(prompt_bufnr)
+				on_package_select(prompt_bufnr)
+			end)
+			map("n", "<CR>", function(prompt_bufnr)
+				on_package_select(prompt_bufnr)
+			end)
+			return true
+		end,
+	}
+
+	if M.config and M.config.picker and M.config.picker.telescope_options then
+		opts = vim.tbl_extend("force", opts, M.config.picker.telescope_options)
+	end
+
+	pickers.new(opts, {}):find()
 end
 
 -- Show Snacks picker

@@ -10,6 +10,13 @@ Fuzzy search Go std lib packages and project packages.
 _Screenshot is showing the Snacks picker._
 
 <details>
+<summary>Telescope picker</summary>
+
+![Telescope picker](https://github.com/user-attachments/assets/5a5ae525-4b5a-4ea1-9363-4a80e02b75b8)
+
+</details>
+
+<details>
 <summary>Native picker</summary>
 
 ![Native picker](https://github.com/user-attachments/assets/7b875776-a098-43a2-a49e-9cfb31cb6eed)
@@ -22,14 +29,17 @@ _Screenshot is showing the Snacks picker._
 - Native syntax highlighting for Go documentation.
 - Optionally leverage [`stdsym`](https://github.com/lotusirous/gostdsym) for
   symbols searching.
-- Supports native Neovim picker and optionally the
-  [snacks.nvim](https://github.com/folke/snacks.nvim) picker.
+- Supports pickers:
+  - Native Neovim picker (no preview)
+  - [Telescope](https://github.com/nvim-telescope/telescope.nvim) picker with
+    preview
+  - [Snacks](https://github.com/folke/snacks.nvim) picker with preview
 
 ## Requirements
 
 - Neovim >= 0.8.0
 - Go installation with `go doc` and `go list` commands available
-- Tree-sitter
+- Tree-sitter (for syntax highlighting)
 
 ## Installation
 
@@ -40,6 +50,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
     "fredrikaverpil/godoc.nvim",
     version = "*",
     dependencies = {
+        { "nvim-telescope/telescope.nvim" }, -- optional
         { "folke/snacks.nvim" }, -- optional
         {
             "nvim-treesitter/nvim-treesitter",
