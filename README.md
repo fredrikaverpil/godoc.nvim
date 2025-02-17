@@ -108,7 +108,7 @@ opts = {
         language = "go", -- the tree-sitter parser used for syntax highlighting
     },
     picker = {
-        type = "native", -- native or snacks
+        type = "native", -- native, telescope or snacks
         snacks_options = {
             layout = {
                 layout = {
