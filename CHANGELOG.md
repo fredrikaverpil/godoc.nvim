@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.2.0...v1.2.1) (2025-02-17)
+
+
+### Bug Fixes
+
+* do not check requirements until running GoDoc ([#23](https://github.com/fredrikaverpil/godoc.nvim/issues/23)) ([b56c487](https://github.com/fredrikaverpil/godoc.nvim/commit/b56c487a1efd6c23c290b4a3ebad39305922158f))
+
 ## [1.2.0](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.1.5...v1.2.0) (2025-02-17)
 
 
