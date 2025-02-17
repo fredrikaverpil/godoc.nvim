@@ -83,7 +83,8 @@ function M.setup(opts)
 	end, { nargs = "?" })
 end
 
--- Fall back to using `go list std` if stdsym binary was not available
+---Get standard library packages from 'go list'
+---@returns table<string>
 local function get_std_packages_golist()
 	local std_packages = vim.fn.systemlist("go list std")
 	if vim.v.shell_error ~= 0 then
@@ -93,39 +94,41 @@ local function get_std_packages_golist()
 	return std_packages
 end
 
--- Get standard library packages from stdsym, if binary is available
+---Get standard library packages from stdsym, if binary is available
+---@returns table<string>
 local function get_std_packages_stdsym()
-	local std_packages = {}
 	local stdsym = vim.fn.executable("stdsym")
 	if stdsym == 1 then
-		std_packages = vim.fn.systemlist("stdsym")
+		-- stdsym is available
+		local std_packages_via_stdsym = vim.fn.systemlist("stdsym")
 		if vim.v.shell_error ~= 0 then
 			vim.notify("Failed to get package list using stdsym, falling back on 'go list'", vim.log.levels.ERROR)
 			return get_std_packages_golist()
 		end
+		return std_packages_via_stdsym
 	end
-	return std_packages
+
+	-- stdsym is not available, fall back to using `go list std`
+	return get_std_packages_golist()
 end
 
--- Get project and dependency packages if in a Go module
-local function get_gomod_packages(std_packages)
-	local all_packages = std_packages
+---Get project and dependency packages, if in a Go module
+---@returns table<strings
+local function get_gomod_packages()
+	-- Search from the directory of the current file upwards until it finds the file "go.mod"
 	local go_mod = vim.fn.findfile("go.mod", ".;")
 	if go_mod ~= "" then
 		-- Get the directory containing go.mod
 		local mod_dir = vim.fn.fnamemodify(go_mod, ":p:h")
 		-- Execute go list all in the module directory
 		local mod_packages = vim.fn.systemlist(string.format("cd %s && go list -e all", vim.fn.shellescape(mod_dir)))
-		if vim.v.shell_error == 0 then
-			-- Combine lists and remove duplicates
-			for _, pkg in ipairs(mod_packages) do
-				table.insert(all_packages, pkg)
-			end
-			all_packages = vim.fn.uniq(all_packages)
-			return all_packages
+		if vim.v.shell_error ~= 0 then
+			vim.notify("Failed to get package list using 'go list'", vim.log.levels.ERROR)
+			return {}
 		end
+		return mod_packages
 	end
-	return std_packages
+	return {} -- no go.mod file found
 end
 
 -- Cache for package list
@@ -134,7 +137,8 @@ local package_cache_time = 0
 local package_cache_cwd = vim.fn.getcwd()
 local CACHE_DURATION = 300 -- 5 minutes
 
--- Get list of packages
+--- Get list of packages
+---@return table<string>
 local function get_packages()
 	-- Check cache
 	local current_time = os.time()
@@ -147,11 +151,17 @@ local function get_packages()
 	end
 
 	local std_packages = get_std_packages_stdsym()
-	local gomod_packages = get_gomod_packages(std_packages) -- TODO: this does not return gomod_packages...
-	local all_packages = vim.fn.uniq(gomod_packages)
+	local gomod_packages = get_gomod_packages()
+	local all_packages = {}
+	for _, pkg in ipairs(std_packages) do
+		table.insert(all_packages, pkg)
+	end
+	for _, pkg in ipairs(gomod_packages) do
+		table.insert(all_packages, pkg)
+	end
 
 	-- Update cache
-	package_cache = all_packages
+	package_cache = vim.fn.uniq(all_packages)
 	package_cache_time = current_time
 
 	return all_packages
