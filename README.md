@@ -76,8 +76,9 @@ The plugin provides the following command:
 > [!WARNING]
 >
 > The `:GoDoc` command is also used by
-> [x-ray/go.nvim](https://github.com/ray-x/go.nvim). You can configure this
-> plugin's command to something else if you wish.
+> [x-ray/go.nvim](https://github.com/ray-x/go.nvim). You can disable this by
+> passing `remap_commands = { GoDoc = false }` to x-ray/go.nvim or you can
+> customize the godoc.nvim command.
 
 ### Examples
 
