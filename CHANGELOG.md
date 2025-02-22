@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.2.1...v1.2.2) (2025-02-22)
+
+
+### Bug Fixes
+
+* exit insert mode after selecting an entry in Telescope ([#27](https://github.com/fredrikaverpil/godoc.nvim/issues/27)) ([ca6ba5a](https://github.com/fredrikaverpil/godoc.nvim/commit/ca6ba5ad9b9474ef42abc70bf2ac4d48770875a0))
+
 ## [1.2.1](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.2.0...v1.2.1) (2025-02-17)
 
 
