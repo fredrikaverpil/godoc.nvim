@@ -60,7 +60,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
         },
     },
     build = "go install github.com/lotusirous/gostdsym/stdsym@latest", -- optional
-    cmd = { "GoDoc" }
+    cmd = { "GoDoc" },
     opts = {},
 }
 ```
