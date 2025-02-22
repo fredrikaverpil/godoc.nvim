@@ -240,6 +240,7 @@ function M.show_telescope_picker()
 		previewer = package_previewer,
 		attach_mappings = function(_, map)
 			map("i", "<CR>", function(prompt_bufnr)
+				vim.cmd("stopinsert")
 				on_package_select(prompt_bufnr)
 			end)
 			map("n", "<CR>", function(prompt_bufnr)
