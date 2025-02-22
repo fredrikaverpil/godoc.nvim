@@ -152,5 +152,5 @@ documentation system:
 Contributions are welcome! Please feel free to submit a pull request.
 
 I would be extra interested in discussions and contributions around improving
-the syntax highlighting of `go doc` output, as it is currently quite messy to
-just apply the syntax highlighting of Go syntax.
+the syntax highlighting of `go doc` output, as it the output becomes quite
+"busy" and incoherent now, when applying the syntax highlighting of Go syntax.
