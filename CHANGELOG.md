@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.3](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.2.2...v1.2.3) (2025-02-23)
+
+
+### Bug Fixes
+
+* overriding syntax highlighting language ([#29](https://github.com/fredrikaverpil/godoc.nvim/issues/29)) ([50a1ca5](https://github.com/fredrikaverpil/godoc.nvim/commit/50a1ca545e0ef339b097d080f5d2ce30484547be))
+
 ## [1.2.2](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.2.1...v1.2.2) (2025-02-22)
 
 
