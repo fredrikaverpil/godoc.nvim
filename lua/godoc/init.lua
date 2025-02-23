@@ -79,6 +79,8 @@ function M.setup(opts)
 			M.show_telescope_picker()
 		elseif M.config.picker.type == "snacks" then
 			M.show_snacks_picker()
+		elseif M.config.picker.type == "mini" then
+			M.show_mini_picker()
 		else
 			vim.notify("Picker not implemented: " .. M.config.picker.type, vim.log.levels.ERROR)
 		end
@@ -305,6 +307,29 @@ function M.show_snacks_picker()
 	end
 
 	snacks.picker.pick(opts)
+end
+
+-- Show Mini picker
+function M.show_mini_picker()
+	local minipick = require("mini.pick")
+
+	local opts = {
+		source = {
+			items = get_packages(),
+			name = "Go Standard Packages",
+			preview = function(buf_id, item)
+				local doc = M.get_documentation(item)
+				vim.api.nvim_buf_set_lines(buf_id, 0, -1, false, doc)
+				vim.api.nvim_set_option_value("filetype", "godoc", { buf = buf_id })
+			end,
+		},
+	}
+
+	if M.config and M.config.picker and M.config.picker.mini_options then
+		opts = vim.tbl_extend("force", opts, M.config.picker.mini_options)
+	end
+
+	minipick.start(opts)
 end
 
 -- Package docs cache

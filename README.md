@@ -34,6 +34,8 @@ _Screenshot is showing the Snacks picker._
   - [Telescope](https://github.com/nvim-telescope/telescope.nvim) picker with
     preview
   - [Snacks](https://github.com/folke/snacks.nvim) picker with preview
+  - [mini.pick](https://github.com/echasnovski/mini.pick) picker with
+    preview
 
 ## Requirements
 
@@ -52,6 +54,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
     dependencies = {
         { "nvim-telescope/telescope.nvim" }, -- optional
         { "folke/snacks.nvim" }, -- optional
+        { "echasnovski/mini.pick" }, -- optional
         {
             "nvim-treesitter/nvim-treesitter",
             opts = {
@@ -93,6 +96,7 @@ local godoc = require("godoc.nvim")
 godoc.show_native_picker()  -- search packages using the native Neovim picker
 godoc.show_telescope_picker()  -- search packages using the telescope picker
 godoc.show_snacks_picker()  -- search packages using the Snacks.nvim picker
+godoc.show_mini_picker()  -- search packages using the mini.pick picker
 godoc.get_documentation("strings.Builder")  -- get the godoc (returns table<string>)
 godoc.show_documentation("strings.Builder")  -- view docs for strings.Builder in split
 ```
@@ -111,7 +115,7 @@ opts = {
         language = "go", -- the tree-sitter parser used for syntax highlighting
     },
     picker = {
-        type = "native", -- native, telescope or snacks
+        type = "native", -- native, telescope, snacks or mini
         snacks_options = {
             layout = {
                 layout = {
