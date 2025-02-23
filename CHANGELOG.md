@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.3.0](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.2.3...v1.3.0) (2025-02-23)
+
+
+### Features
+
+* initial mini.pick support ([#32](https://github.com/fredrikaverpil/godoc.nvim/issues/32)) ([9511077](https://github.com/fredrikaverpil/godoc.nvim/commit/95110775a983978b14083a441be251eb2518b87b))
+
+
+### Bug Fixes
+
+* require the correct module name ([#31](https://github.com/fredrikaverpil/godoc.nvim/issues/31)) ([0ad558d](https://github.com/fredrikaverpil/godoc.nvim/commit/0ad558d9c0da13999d7d3a4ee2707ecac1a299cd))
+
 ## [1.2.3](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.2.2...v1.2.3) (2025-02-23)
 
 
