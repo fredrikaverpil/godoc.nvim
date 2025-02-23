@@ -322,6 +322,9 @@ function M.show_mini_picker()
 				vim.api.nvim_buf_set_lines(buf_id, 0, -1, false, doc)
 				vim.api.nvim_set_option_value("filetype", "godoc", { buf = buf_id })
 			end,
+			choose = function(item)
+				M.show_documentation(item)
+			end,
 		},
 	}
 
