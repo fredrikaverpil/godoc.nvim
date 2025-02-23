@@ -36,9 +36,6 @@ M.config = {
 	},
 }
 
--- Set up syntax highlighting
-vim.treesitter.language.register(M.config.highlighting.language, { "godoc" })
-
 -- Check if go is available
 local function check_requirements()
 	if vim.fn.executable("go") == 0 then
@@ -57,6 +54,9 @@ end
 -- Set up the plugin with user config
 function M.setup(opts)
 	M.config = vim.tbl_deep_extend("force", M.config, opts or {})
+
+	-- Set up syntax highlighting
+	vim.treesitter.language.register(M.config.highlighting.language, { "godoc" })
 
 	-- Create user command
 	vim.api.nvim_create_user_command(M.config.command, function(args)
