@@ -89,7 +89,7 @@ The plugin provides the following command:
 ```
 
 ```lua
-local godoc = require("godoc.nvim")
+local godoc = require("godoc")
 godoc.show_native_picker()  -- search packages using the native Neovim picker
 godoc.show_telescope_picker()  -- search packages using the telescope picker
 godoc.show_snacks_picker()  -- search packages using the Snacks.nvim picker
