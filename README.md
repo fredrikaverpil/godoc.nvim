@@ -115,6 +115,12 @@ local godoc = require("godoc")
             name = "go",
             opts = {
                 command = "GoDoc",
+                function get_syntax_info()
+                    return {
+                        filetype = "godoc" -- custom filetype
+                        language = "go" -- tree-sitter parser, for syntax highlighting
+                    }
+                end,
             },
         },
     },
