@@ -38,7 +38,7 @@
 
 --- @class GoDocSyntaxInfo
 --- @field filetype string The filetype to set for the documentation buffer
---- @field language string The treesitter language to use
+--- @field language string The treesitter language to use for syntax highlighting
 
 --- @class GoDocWindowConfig
 --- @field type "split"|"vsplit" The type of window to open
