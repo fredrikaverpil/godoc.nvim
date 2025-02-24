@@ -75,9 +75,8 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 
 > [!NOTE]
 >
-> The above configuration is an example configuration for Go. There are other
-> adapters and configurations for other languages too (please continue reading
-> for more details).
+> Currently only the "go" adapter is built in (and loaded by default), but
+> additional adapters could be implemented.
 
 ## Usage
 
@@ -136,9 +135,6 @@ local godoc = require("godoc")
     },
 }
 ```
-
-Currently only the "go" adapter is built in, but additional adapters could be
-implemented.
 
 ## Health Check
 
