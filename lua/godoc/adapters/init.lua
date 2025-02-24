@@ -55,4 +55,23 @@ function M.validate_adapter(adapter)
 	return true
 end
 
+--- Override a default adapter by merging default implementation with user overrides
+--- @param default_adapter GoDocAdapter
+--- @param user_opts? GoDocAdapterOpts
+--- @return GoDocAdapter
+function M.override_adapter(default_adapter, user_opts)
+	if not user_opts then
+		return default_adapter
+	end
+
+	-- Merge user options with default adapter
+	return {
+		command = user_opts.command or default_adapter.command,
+		get_items = user_opts.get_items or default_adapter.get_items,
+		get_content = user_opts.get_content or default_adapter.get_content,
+		get_syntax_info = user_opts.get_syntax_info or default_adapter.get_syntax_info,
+		health = user_opts.health or default_adapter.health,
+	}
+end
+
 return M
