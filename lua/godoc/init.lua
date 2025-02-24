@@ -60,10 +60,8 @@ local function configure_adapters(config)
 			elseif adapter_config.name and adapters.has_adapter(adapter_config.name) then
 				-- Handle built-in adapter
 				local default_adapter = adapters.get_adapter(adapter_config.name)
-				vim.notify(vim.inspect(default_adapter))
 				if default_adapter ~= nil then
 					local final_adapter = adapters.override_adapter(default_adapter, adapter_config.opts)
-					vim.notify(vim.inspect(final_adapter))
 					table.insert(configured_adapters, final_adapter)
 				else
 					vim.notify(string.format("Adapter %s not found", adapter_config.name), vim.log.levels.WARN)
