@@ -114,7 +114,7 @@ local godoc = require("godoc")
         {
             name = "go",
             opts = {
-                command = "GoDoc",
+                command = "GoDoc", -- the vim command to invoke Go documentation
                 function get_syntax_info()
                     return {
                         filetype = "godoc" -- custom filetype
