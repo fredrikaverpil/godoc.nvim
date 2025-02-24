@@ -204,23 +204,20 @@ function M.setup(opts)
 		opts = {}
 	end
 	return {
-		command = opts.command or "GoDoc",
-		get_items = opts.get_items or function()
-			-- default implementation
+		command = "GoDoc",
+		get_items = function()
 			return get_packages()
 		end,
-		get_content = opts.get_content or function(choice)
-			-- default implementation
+		get_content = function(choice)
 			return vim.fn.systemlist("go doc -all " .. choice)
 		end,
-		get_syntax_info = opts.get_syntax_info or function()
-			-- default implementation
+		get_syntax_info = function()
 			return {
 				filetype = "godoc",
 				language = "go",
 			}
 		end,
-		health = opts.health or health,
+		health = health,
 	}
 end
 
