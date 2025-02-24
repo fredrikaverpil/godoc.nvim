@@ -155,7 +155,7 @@ It's possible to extend the functionality of godoc.nvim with adapters. There are
 different kinds of adapters:
 
 - Built-in, added to this very project, into the
-  [lua/godoc/adapters](lua/adapters) directory.
+  [lua/godoc/adapters](lua/godoc/adapters) directory.
 - User-defined, defined inline in the user's own config.
 - Third-party, defined in a different git repo and pulled in as separate
   dependency.
