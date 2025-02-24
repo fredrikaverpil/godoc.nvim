@@ -281,12 +281,6 @@ All adapters must implement the interface of `GoDocAdapter`:
 --- @field health? fun(): GoDocHealthCheck[] Optional health check function
 ```
 
-A simple example would be:
-
-```lua
-local adapter =
-```
-
 The `opts` which can be passed into an adapter (by the user) is implemented by
 `GoDocAdapterOpts`:
 
