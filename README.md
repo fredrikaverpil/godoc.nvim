@@ -2,7 +2,11 @@
 
 # godoc.nvim
 
-Fuzzy search Go std lib packages and project packages.
+Fuzzy search Go docs from within Neovim.
+
+> [!TIP]
+>
+> New: define adapters to extend this functionality to other languages/things!
 
 ## Screenshots
 
@@ -26,7 +30,7 @@ _Screenshot is showing the Snacks picker._
 ## Features
 
 - Browse and search Go standard library packages and project packages.
-- Native syntax highlighting for Go documentation.
+- Syntax highlighting for Go documentation.
 - Optionally leverage [`stdsym`](https://github.com/lotusirous/gostdsym) for
   symbols searching.
 - Supports pickers:
@@ -34,8 +38,9 @@ _Screenshot is showing the Snacks picker._
   - [Telescope](https://github.com/nvim-telescope/telescope.nvim) picker with
     preview
   - [Snacks](https://github.com/folke/snacks.nvim) picker with preview
-  - [mini.pick](https://github.com/echasnovski/mini.pick) picker with
-    preview
+  - [mini.pick](https://github.com/echasnovski/mini.pick) picker with preview
+- Adapters can extend functionality to cover other languages (and anything else
+  you might want to pick, really).
 
 ## Requirements
 
@@ -63,18 +68,28 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
         },
     },
     build = "go install github.com/lotusirous/gostdsym/stdsym@latest", -- optional
-    cmd = { "GoDoc" },
+    cmd = { "GoDoc" }, -- optional
     opts = {},
 }
 ```
 
+> [!NOTE]
+>
+> The above configuration is an example configuration for Go. There are other
+> adapters and configurations for other languages too (please continue reading
+> for more details).
+
 ## Usage
 
-The plugin provides the following command:
+When using the `go` adapter (specified above), the following command is
+provided:
 
 - `:GoDoc` - Open picker and search packages.
 - `:GoDoc <package>` - Directly open documentation for the specified package or
   symbol.
+
+For details, see the actual implementation in
+[lua/godoc/adapters/go.lua](lua/godoc/adapters/go.lua).
 
 > [!WARNING]
 >
@@ -91,69 +106,170 @@ The plugin provides the following command:
 :GoDoc strings.Builder  " view documentation for strings.Builder
 ```
 
+## Default configuration (`opts`)
+
 ```lua
 local godoc = require("godoc")
-godoc.show_native_picker()  -- search packages using the native Neovim picker
-godoc.show_telescope_picker()  -- search packages using the telescope picker
-godoc.show_snacks_picker()  -- search packages using the Snacks.nvim picker
-godoc.show_mini_picker()  -- search packages using the mini.pick picker
-godoc.get_documentation("strings.Builder")  -- get the godoc (returns table<string>)
-godoc.show_documentation("strings.Builder")  -- view docs for strings.Builder in split
-```
 
-## Configuration
-
-These are the defaults:
-
-```lua
-opts = {
-    command = "GoDoc", -- the desired Vim command to use
-    window = {
-        type = "split", -- split or vsplit
-    },
-    highlighting = {
-        language = "go", -- the tree-sitter parser used for syntax highlighting
-    },
-    picker = {
-        type = "native", -- native, telescope, snacks or mini
-        snacks_options = {
-            layout = {
-                layout = {
-                    height = 0.8,
-                    width = 0.9, -- Take up 90% of the total width (adjust as needed)
-                    box = "horizontal", -- Horizontal layout (input and list on the left, preview on the right)
-                    { -- Left side (input and list)
-                        box = "vertical",
-                        width = 0.3, -- List and input take up 30% of the width
-                        border = "rounded",
-                        { win = "input", height = 1, border = "bottom" },
-                        { win = "list", border = "none" },
-                    },
-                    { win = "preview", border = "rounded", width = 0.7 }, -- Preview window takes up 70% of the width
-                },
-            },
-            win = {
-                preview = {
-                    wo = { wrap = true },
-                },
+---@type godoc.types.GoDocConfig
+{
+    adapters = {
+        -- for details, see lua/godoc/adapters/go.lua
+        {
+            name = "go",
+            opts = {
+                command = "GoDoc",
             },
         },
+    },
+    window = {
+        type = "split", -- split | vsplit
+    },
+    picker = {
+        type = "native", -- native (vim.ui.select) | telescope | snacks | mini
+
+        -- see respective picker in lua/godoc/pickers for available options
+        native = {},
+        telescope = {},
+        snacks = {},
+        mini = {},
     },
 }
 ```
 
+Currently only the "go" adapter is built in, but additional adapters could be
+implemented.
+
 ## Health Check
 
-The plugin includes a health check to verify your Go installation and
-documentation system:
+The plugin includes a health check. It will run the checks associated with the
+adapters you have enabled (and which have specified a health check).
 
 ```vim
 :checkhealth godoc
 ```
 
+## Adapters
+
+It's possible to extend the functionality of godoc.nvim with adapters. There are
+different kinds of adapters:
+
+- Built-in, added to this very project, into the
+  [lua/godoc/adapters](lua/adapters) directory.
+- User-defined, defined inline in the user's own config.
+- Third-party, defined in a different git repo and pulled in as separate
+  dependency.
+
+For all these kinds of adapters, it's possible to perform user-provided
+overrides.
+
+```lua
+{
+    "fredrikaverpil/godoc.nvim",
+    version = "*",
+    dependencies = {
+        {
+            "nvim-treesitter/nvim-treesitter",
+            opts = {
+              ensure_installed = { "go", "mylang", "python" },
+            },
+        },
+        { "someuser/pydoc.nvim" }, -- third-party
+    },
+    opts = {
+        adapters = {
+            -- built-in
+            { name = "go" },
+
+            -- built-in, but with user-override
+            { name = "go", opts = { command = "MyCustomCommand" }, },
+
+            -- user-provided (note the omission of a 'name' field)
+            {
+                command = "MyDoc",
+                get_items = function()
+                    return vim.fn.systemlist("mylang doc --list")
+                end,
+                get_content = function(choice)
+                    return vim.fn.systemlist("mylang doc " .. choice)
+                end,
+                get_syntax_info = function()
+                    return {
+                        filetype = "mydoc",
+                        language = "mylang"
+                    }
+                end
+            },
+
+            -- third-party
+            {
+                setup = function()
+                    opts = {...} -- third-party opts
+                    return require("pydoc.nvim").setup(opts)
+                end,
+            },
+
+            -- third-party with user-override
+            {
+                setup = function()
+                    opts = {...} -- third-party opts
+                    return require("pydoc.nvim").setup(opts)
+                end,
+                opts = {
+                    command = "CustomPyDocCommand",
+                },
+            },
+        }
+    },
+}
+```
+
+> [!NOTE]
+>
+> The `pydoc.nvim` and `mylang` above are just a fictional example to illustrate
+> functionality.
+
+### Adapter interface
+
+All adapters must implement the interface of `GoDocAdapter`:
+
+```lua
+--- @class GoDocAdapter
+--- @field command string The vim command name to register
+--- @field get_items fun(): string[] Function that returns a list of available items
+--- @field get_content fun(choice: string): string[] Function that returns the content
+--- @field get_syntax_info fun(): GoDocSyntaxInfo Function that returns syntax info
+--- @field health? fun(): GoDocHealthCheck[] Optional health check function
+```
+
+The `opts` which can be passed into an adapter (by the user) is implemented by
+`GoDocAdapterOpts`:
+
+```lua
+--- @class GoDocAdapterOpts
+--- @field command? string Override the command name
+--- @field get_items? fun(): string[] Override the get_items function
+--- @field get_content? fun(choice: string): string[] Override the get_content function
+--- @field get_syntax_info? fun(): GoDocSyntaxInfo Override the get_syntax_info function
+--- @field health? fun(): GoDocHealthCheck[] Override the health check function
+--- @field [string] any Other adapter-specific options
+```
+
+- See the example implementation for the built-in Go adapter at
+  [lua/adapters/go.lua](lua/adapters/go.lua).
+- If implementing a third-party adapter, make sure it has an exposed `setup`
+  function which returns an `GoDocAdapter`.
+
+The `GoDocAdapter` type is defined in
+[lua/godoc/types.lua](lua/godoc/types.lua).
+
+Feel free to open a pull request if you want to add a new built-in adapter or
+improve on existing ones!
+
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a pull request.
+Contributions are very much welcome! ❤️ Please feel free to submit a pull
+request.
 
 I would be extra interested in discussions and contributions around improving
 the syntax highlighting of `go doc` output, as it the output becomes quite
