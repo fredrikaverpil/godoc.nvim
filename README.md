@@ -87,9 +87,6 @@ provided:
 - `:GoDoc <package>` - Directly open documentation for the specified package or
   symbol.
 
-For details, see the actual implementation in
-[lua/godoc/adapters/go.lua](lua/godoc/adapters/go.lua).
-
 > [!WARNING]
 >
 > The `:GoDoc` command is also used by
@@ -135,6 +132,19 @@ local godoc = require("godoc")
     },
 }
 ```
+
+For details, see the actual implementations.
+
+Adapters:
+
+- [lua/godoc/adapters/go.lua](lua/godoc/adapters/go.lua)
+
+Pickers
+
+- [lua/godoc/pickers/native.lua](lua/godoc/pickers/native.lua)
+- [lua/godoc/pickers/telescope.lua](lua/godoc/pickers/telescope.lua)
+- [lua/godoc/pickers/snacks.lua](lua/godoc/pickers/snacks.lua)
+- [lua/godoc/pickers/mini.lua](lua/godoc/pickers/mini.lua)
 
 ## Health Check
 
@@ -191,10 +201,37 @@ overrides.
                 end,
                 get_syntax_info = function()
                     return {
-                        filetype = "mydoc",
-                        language = "mylang"
+                        filetype = "mydoc", -- filetype for buffer that is opened
+                        language = "mylang" -- tree-sitter parser
                     }
                 end
+            },
+
+            -- user-provided (another example)
+            {
+                command = "DadJokes",
+                function get_items()
+                    return { "coffee", "pasta" }
+                end,
+                function get_content(choice)
+                    local db = {
+                        coffee = {
+                            "What did the coffee report to the police?",
+                            "A mugging!"
+                        },
+                        pasta = {
+                            "What do you call a fake noodle?",
+                            "An impasta!"
+                        },
+                    }
+                    return db[choice]
+                end,
+                function get_syntax_info()
+                    return {
+                        filetype = "text",
+                        language = "text",
+                    }
+                end,
             },
 
             -- third-party
@@ -236,6 +273,12 @@ All adapters must implement the interface of `GoDocAdapter`:
 --- @field get_content fun(choice: string): string[] Function that returns the content
 --- @field get_syntax_info fun(): GoDocSyntaxInfo Function that returns syntax info
 --- @field health? fun(): GoDocHealthCheck[] Optional health check function
+```
+
+A simple example would be:
+
+```lua
+local adapter =
 ```
 
 The `opts` which can be passed into an adapter (by the user) is implemented by
