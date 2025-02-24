@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.3.0...v2.0.0) (2025-02-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* rewrite for extensibility ([#33](https://github.com/fredrikaverpil/godoc.nvim/issues/33))
+
+### Features
+
+* rewrite for extensibility ([#33](https://github.com/fredrikaverpil/godoc.nvim/issues/33)) ([f71cc7c](https://github.com/fredrikaverpil/godoc.nvim/commit/f71cc7c8423bc1ba4af93933c592350e23cab4ae))
+
 ## [1.3.0](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.2.3...v1.3.0) (2025-02-23)
 
 
