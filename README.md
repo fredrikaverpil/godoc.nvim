@@ -303,7 +303,7 @@ The `opts` which can be passed into an adapter (by the user) is implemented by
 - See the example implementation for the built-in Go adapter at
   [lua/adapters/go.lua](lua/adapters/go.lua).
 - If implementing a third-party adapter, make sure it has an exposed `setup`
-  function which returns an `GoDocAdapter`.
+  function which returns a `GoDocAdapter`.
 
 The `GoDocAdapter` type is defined in
 [lua/godoc/types.lua](lua/godoc/types.lua).
