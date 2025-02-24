@@ -222,7 +222,7 @@ overrides.
 
 > [!NOTE]
 >
-> The `pydoc.nvim` and `mylang` above are just a fictional example to illustrate
+> The `pydoc.nvim` and `mylang` above are just fictional examples to illustrate
 > functionality.
 
 ### Adapter interface
