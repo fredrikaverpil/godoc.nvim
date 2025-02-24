@@ -49,8 +49,8 @@ local function configure_adapters(config)
 		if type(adapter_config) == "table" then
 			if adapter_config.setup and type(adapter_config.setup) == "function" then
 				-- Handle third-party adapter
-				local base_adapter = adapter_config.setup() -- Get default adapter implementation
-				local final_adapter = adapters.override_adapter(base_adapter, adapter_config.opts)
+				local default_adapter = adapter_config.setup() -- Get default adapter implementation
+				local final_adapter = adapters.override_adapter(default_adapter, adapter_config.opts)
 				local is_valid, error_message = adapters.validate_adapter(final_adapter)
 				if is_valid then
 					table.insert(configured_adapters, final_adapter)
@@ -59,10 +59,10 @@ local function configure_adapters(config)
 				end
 			elseif adapter_config.name and adapters.has_adapter(adapter_config.name) then
 				-- Handle built-in adapter
-				local base_adapter = adapters.get_adapter(adapter_config.name)
-				vim.notify(vim.inspect(base_adapter))
-				if base_adapter ~= nil then
-					local final_adapter = adapters.override_adapter(base_adapter, adapter_config.opts)
+				local default_adapter = adapters.get_adapter(adapter_config.name)
+				vim.notify(vim.inspect(default_adapter))
+				if default_adapter ~= nil then
+					local final_adapter = adapters.override_adapter(default_adapter, adapter_config.opts)
 					vim.notify(vim.inspect(final_adapter))
 					table.insert(configured_adapters, final_adapter)
 				else
