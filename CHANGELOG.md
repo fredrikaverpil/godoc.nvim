@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/fredrikaverpil/godoc.nvim/compare/v2.0.0...v2.0.1) (2025-02-25)
+
+
+### Bug Fixes
+
+* read window type setting from user config ([#38](https://github.com/fredrikaverpil/godoc.nvim/issues/38)) ([f7a6ddc](https://github.com/fredrikaverpil/godoc.nvim/commit/f7a6ddc64498a0475fb5f9d44b3152333f7c1da5))
+
 ## [2.0.0](https://github.com/fredrikaverpil/godoc.nvim/compare/v1.3.0...v2.0.0) (2025-02-24)
 
 
