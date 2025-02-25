@@ -216,10 +216,10 @@ overrides.
             -- user-provided (another example)
             {
                 command = "DadJokes",
-                function get_items()
+                get_items = function()
                     return { "coffee", "pasta" }
                 end,
-                function get_content(choice)
+                get_content = function(choice)
                     local db = {
                         coffee = {
                             "What did the coffee report to the police?",
@@ -232,7 +232,7 @@ overrides.
                     }
                     return db[choice]
                 end,
-                function get_syntax_info()
+                get_syntax_info = function()
                     return {
                         filetype = "text",
                         language = "text",
