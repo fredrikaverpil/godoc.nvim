@@ -115,12 +115,13 @@ local godoc = require("godoc")
             name = "go",
             opts = {
                 command = "GoDoc", -- the vim command to invoke Go documentation
-                function get_syntax_info()
+                get_syntax_info = function()
                     return {
-                        filetype = "godoc" -- custom filetype
-                        language = "go" -- tree-sitter parser, for syntax highlighting
+                        filetype = "godoc", -- filetype for the buffer
+                        language = "go", -- tree-sitter parser, for syntax highlighting
                     }
                 end,
+
             },
         },
     },
