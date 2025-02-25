@@ -139,7 +139,11 @@ local godoc = require("godoc")
 }
 ```
 
-For details, see the actual implementations.
+> [!TIP]
+>
+> If the syntax highlighting is too "busy" for you, set `language = "text"`.
+
+For further details, see the actual implementations.
 
 Adapters:
 
