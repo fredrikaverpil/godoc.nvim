@@ -3,7 +3,7 @@ local M = {}
 
 --- @param adapter GoDocAdapter
 --- @param config GoDocConfig
---- @param callback fun(choice: string|nil)
+--- @param callback fun(choice: GoDocCallbackData)
 function M.show(adapter, config, callback)
 	local minipick = require("mini.pick")
 
@@ -20,7 +20,7 @@ function M.show(adapter, config, callback)
 				vim.api.nvim_set_option_value("filetype", syntax_info.filetype, { buf = buf_id })
 			end,
 			choose = function(item)
-				callback(item)
+				callback({ type = "show_documentation", choice = item })
 			end,
 		},
 	}

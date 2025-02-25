@@ -84,6 +84,19 @@ local function get_packages()
 	return all_packages
 end
 
+--- @param package string
+--- @return GoDocDefinition?
+local function get_package_definition(package)
+	-- TODO: get package entry point
+	local stdout = vim.fn.system("go list -f '{{.Dir}}' " .. package)
+	if vim.v.shell_error == 0 then
+		return {
+			filepath = vim.trim(stdout),
+			position = nil,
+		}
+	end
+end
+
 local function health()
 	--- @type GoDocHealthCheck[]
 	local checks = {}
@@ -210,6 +223,9 @@ function M.setup(opts)
 		end,
 		get_content = function(choice)
 			return vim.fn.systemlist("go doc -all " .. choice)
+		end,
+		get_definition = function(choice)
+			return get_package_definition(choice)
 		end,
 		get_syntax_info = function()
 			return {

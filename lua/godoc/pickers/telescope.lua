@@ -3,7 +3,7 @@ local M = {}
 
 --- @param adapter GoDocAdapter
 --- @param config GoDocConfig
---- @param callback fun(choice: string|nil)
+--- @param callback fun(data: GoDocCallbackData)
 function M.show(adapter, config, callback)
 	local action_state = require("telescope.actions.state")
 	local finders = require("telescope.finders")
@@ -28,7 +28,14 @@ function M.show(adapter, config, callback)
 	local function on_package_select(prompt_bufnr)
 		local selection = action_state.get_selected_entry()
 		if selection then
-			callback(selection.value)
+			callback({ type = "show_documentation", choice = selection.value })
+		end
+	end
+
+	local function on_goto_definition(prompt_bufnr)
+		local selection = action_state.get_selected_entry()
+		if selection then
+			callback({ type = "goto_definition", choice = selection.value })
 		end
 	end
 
@@ -64,6 +71,9 @@ function M.show(adapter, config, callback)
 			end)
 			map("n", "<CR>", function(prompt_bufnr)
 				on_package_select(prompt_bufnr)
+			end)
+			map("n", "gd", function(prompt_bufnr)
+				on_goto_definition(prompt_bufnr)
 			end)
 			return true
 		end,

@@ -8,6 +8,7 @@
 --- @field get_items fun(): string[] Function that returns a list of available items
 --- @field get_content fun(choice: string): string[] Function that returns the content
 --- @field get_syntax_info fun(): GoDocSyntaxInfo Function that returns syntax info
+--- @field get_definition? fun(choice: string): GoDocDefinition Function that returns the definition location
 --- @field health? fun(): GoDocHealthCheck[] Optional health check function
 
 --- @class GoDocAdapterOpts
@@ -15,6 +16,7 @@
 --- @field get_items? fun(): string[] Override the get_items function
 --- @field get_content? fun(choice: string): string[] Override the get_content function
 --- @field get_syntax_info? fun(): GoDocSyntaxInfo Override the get_syntax_info function
+--- @field get_definition? fun(choice: string): GoDocDefinition Override the get_definition function
 --- @field health? fun(): GoDocHealthCheck[] Override the health check function
 --- @field [string] any Other adapter-specific options
 
@@ -40,11 +42,19 @@
 --- @field filetype string The filetype to set for the documentation buffer
 --- @field language string The treesitter language to use for syntax highlighting
 
+--- @class GoDocDefinition
+--- @field filepath string Path on filesystem to the source code
+--- @field position [number, number]? Position of definition in source (row, col)
+
 --- @class GoDocWindowConfig
 --- @field type "split"|"vsplit" The type of window to open
 
+--- @class GoDocCallbackData
+--- @field type "show_documentation" | "goto_definition"
+--- @field choice string?
+
 --- @class GoDocPicker
---- @field show fun(adapter: GoDocAdapter, user_config: GoDocConfig, callback: fun(choice: string|nil)) Shows the picker UI with items from adapter
+--- @field show fun(adapter: GoDocAdapter, user_config: GoDocConfig, callback: fun(data:GoDocCallbackData)) Shows the picker UI with items from adapter
 
 --- @class GoDocPickerConfig
 --- @field type "native"|"telescope"|"snacks"|"mini"|"fzf_lua" The type of picker to use

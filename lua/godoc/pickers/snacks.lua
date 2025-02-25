@@ -3,7 +3,7 @@ local M = {}
 
 --- @param adapter GoDocAdapter
 --- @param config GoDocConfig
---- @param callback fun(choice: string|nil)
+--- @param callback fun(data: GoDocCallbackData)
 function M.show(adapter, config, callback)
 	local snacks = require("snacks")
 
@@ -35,11 +35,27 @@ function M.show(adapter, config, callback)
 				ctx.preview:reset()
 			end
 		end or nil,
+		win = {
+			input = {
+				keys = {
+					["gd"] = {
+						"goto_definition",
+						mode = { "n" },
+					},
+				},
+			},
+		},
 		actions = {
 			confirm = function(picker, item)
 				if item then
 					snacks.picker.actions.close(picker)
-					callback(item.item_name)
+					callback({ type = "show_documentation", choice = item.item_name })
+				end
+			end,
+			goto_definition = function(picker, item)
+				if item then
+					snacks.picker.actions.close(picker)
+					callback({ type = "goto_definition", choice = item.item_name })
 				end
 			end,
 		},

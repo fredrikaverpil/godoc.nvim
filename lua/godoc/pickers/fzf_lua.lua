@@ -3,7 +3,7 @@ local M = {}
 
 --- @param adapter GoDocAdapter
 --- @param config GoDocConfig
---- @param callback fun(choice: string|nil)
+--- @param callback fun(choice: GoDocCallbackData)
 function M.show(adapter, config, callback)
 	local core = require("fzf-lua.core")
 	local opts = {
@@ -12,7 +12,11 @@ function M.show(adapter, config, callback)
 		debug = false,
 		actions = {
 			["default"] = function(selected, _)
-				callback(table.concat(selected, ""))
+				callback({ type = "show_documentation", choice = table.concat(selected, "") })
+			end,
+			-- TODO: fzf lua doesn't accept 'gd' as a keymap
+			["ctrl-s"] = function(selected, _)
+				callback({ type = "goto_definition", choice = table.concat(selected, "") })
 			end,
 		},
 	}
