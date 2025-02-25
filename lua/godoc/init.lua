@@ -130,12 +130,12 @@ function M.show_documentation(adapter, item)
 	vim.api.nvim_set_option_value("filetype", adapter.get_syntax_info().filetype, { buf = buf })
 
 	-- Open window based on config
-	if M.defaults.window.type == "split" then
+	if M.config.window.type == "split" then
 		vim.cmd("split")
-	elseif M.defaults.window.type == "vsplit" then
+	elseif M.config.window.type == "vsplit" then
 		vim.cmd("vsplit")
 	else
-		vim.notify("Invalid window type: " .. M.defaults.window.type, vim.log.levels.ERROR)
+		vim.notify("Invalid window type: " .. M.config.window.type, vim.log.levels.ERROR)
 	end
 
 	vim.api.nvim_set_current_buf(buf)
