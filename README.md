@@ -121,7 +121,6 @@ local godoc = require("godoc")
                         language = "go", -- tree-sitter parser, for syntax highlighting
                     }
                 end,
-
             },
         },
     },
