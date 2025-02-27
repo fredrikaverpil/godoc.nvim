@@ -24,6 +24,7 @@ M.defaults = {
 		telescope = {},
 		snacks = {},
 		mini = {},
+		fzf_lua = {},
 	},
 }
 

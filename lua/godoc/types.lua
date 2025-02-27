@@ -47,10 +47,11 @@
 --- @field show fun(adapter: GoDocAdapter, user_config: GoDocConfig, callback: fun(choice: string|nil)) Shows the picker UI with items from adapter
 
 --- @class GoDocPickerConfig
---- @field type "native"|"telescope"|"snacks"|"mini" The type of picker to use
+--- @field type "native"|"telescope"|"snacks"|"mini"|"fzf_lua" The type of picker to use
 --- @field native? table Options for native picker
 --- @field telescope? table Options for telescope picker
 --- @field snacks? table Options for snacks picker
 --- @field mini? table Options for mini.pick picker
+--- @field fzf_lua? table Options for fzf-lua picker
 
 return {}
