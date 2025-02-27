@@ -39,6 +39,8 @@ _Screenshot is showing the Snacks picker._
     preview
   - [Snacks](https://github.com/folke/snacks.nvim) picker with preview
   - [mini.pick](https://github.com/echasnovski/mini.pick) picker with preview
+  - [fzf-lua](https://github.com/ibhagwan/fzf-lua) picker (no preview, feel free
+    to contribute via PR!)
 - Adapters can extend functionality to cover other languages (and anything else
   you might want to pick, really).
 
@@ -60,6 +62,7 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
         { "nvim-telescope/telescope.nvim" }, -- optional
         { "folke/snacks.nvim" }, -- optional
         { "echasnovski/mini.pick" }, -- optional
+        { "ibhagwan/fzf-lua" }, -- optional
         {
             "nvim-treesitter/nvim-treesitter",
             opts = {
@@ -128,13 +131,14 @@ local godoc = require("godoc")
         type = "split", -- split | vsplit
     },
     picker = {
-        type = "native", -- native (vim.ui.select) | telescope | snacks | mini
+        type = "native", -- native (vim.ui.select) | telescope | snacks | mini | fzf_lua
 
         -- see respective picker in lua/godoc/pickers for available options
         native = {},
         telescope = {},
         snacks = {},
         mini = {},
+        fzf_lua = {},
     },
 }
 ```
@@ -155,6 +159,7 @@ Pickers
 - [lua/godoc/pickers/telescope.lua](lua/godoc/pickers/telescope.lua)
 - [lua/godoc/pickers/snacks.lua](lua/godoc/pickers/snacks.lua)
 - [lua/godoc/pickers/mini.lua](lua/godoc/pickers/mini.lua)
+- [lua/godoc/pickers/fzf_lua.lua](lua/godoc/pickers/fzf_lua.lua)
 
 ## Health Check
 

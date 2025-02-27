@@ -17,7 +17,7 @@ M.defaults = {
 		type = "split", -- split, vsplit
 	},
 	picker = {
-		type = "native", -- native | telescope | snacks | mini
+		type = "native", -- native | telescope | snacks | mini | fzf_lua
 
 		-- see respective picker in lua/godoc/pickers for available options
 		native = {},
