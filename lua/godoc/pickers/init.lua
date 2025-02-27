@@ -6,6 +6,7 @@ local pickers = {
 	telescope = require("godoc.pickers.telescope"),
 	snacks = require("godoc.pickers.snacks"),
 	mini = require("godoc.pickers.mini"),
+	fzf_lua = require("godoc.pickers.fzf_lua"),
 }
 
 --- Get a picker implementation
