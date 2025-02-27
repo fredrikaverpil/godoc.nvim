@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://github.com/fredrikaverpil/godoc.nvim/compare/v2.0.1...v2.1.0) (2025-02-27)
+
+
+### Features
+
+* add fzf-lua as a picker ([#40](https://github.com/fredrikaverpil/godoc.nvim/issues/40)) ([d131b1d](https://github.com/fredrikaverpil/godoc.nvim/commit/d131b1d7eaed7e5eef60faa6a99ea2b5a3ae6a59))
+
 ## [2.0.1](https://github.com/fredrikaverpil/godoc.nvim/compare/v2.0.0...v2.0.1) (2025-02-25)
 
 
