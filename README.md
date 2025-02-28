@@ -52,7 +52,12 @@ _Screenshot is showing the Snacks picker._
 
 ## Installation
 
-Using [lazy.nvim](https://github.com/folke/lazy.nvim):
+> [!NOTE]
+>
+> Currently only the "go" adapter is built in (and loaded by default), but
+> additional adapters could be implemented.
+
+### Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
 ```lua
 {
@@ -72,37 +77,25 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
     },
     build = "go install github.com/lotusirous/gostdsym/stdsym@latest", -- optional
     cmd = { "GoDoc" }, -- optional
-    opts = {},
+    opts = {}, -- see further down below for configuration
 }
 ```
 
-Using [vim-plug](https://github.com/junegunn/vim-plug):
+### Using [vim-plug](https://github.com/junegunn/vim-plug)
 
 ```vim
-    Plug 'fredrikaverpil/godoc.nvim'
+Plug 'fredrikaverpil/godoc.nvim'
 
-    Plug 'nvim-telescope/telescope.nvim'  " optional
-    Plug 'folke/snacks.nvim'             " optional
-    Plug 'echasnovski/mini.pick'         " optional
-    Plug 'ibhagwan/fzf-lua'              " optional
-```
+Plug 'nvim-telescope/telescope.nvim'  " optional
+Plug 'folke/snacks.nvim'              " optional
+Plug 'echasnovski/mini.pick'          " optional
+Plug 'ibhagwan/fzf-lua'               " optional
 
-### Configuring with LUA script
-
-```lua
 lua <<EOF
-require('godoc').setup({
-    picker = {
-        type = "telescope", -- native (vim.ui.select) | telescope | snacks | mini | fzf_lua
-    },
-})
+local opts = {} -- see further down below for configuration
+require('godoc').setup(opts)
 EOF
 ```
-
-> [!NOTE]
->
-> Currently only the "go" adapter is built in (and loaded by default), but
-> additional adapters could be implemented.
 
 ## Usage
 
