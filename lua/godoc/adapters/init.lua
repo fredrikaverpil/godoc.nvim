@@ -43,6 +43,7 @@ function M.validate_adapter(adapter)
 		{ name = "command", type = "string" },
 		{ name = "get_items", type = "function" },
 		{ name = "get_content", type = "function" },
+    { name = "get_definition", type = "function" },
 		{ name = "get_syntax_info", type = "function" },
 	}
 
@@ -69,6 +70,7 @@ function M.override_adapter(default_adapter, user_opts)
 		command = user_opts.command or default_adapter.command,
 		get_items = user_opts.get_items or default_adapter.get_items,
 		get_content = user_opts.get_content or default_adapter.get_content,
+		get_definition = user_opts.get_definition or default_adapter.get_definition,
 		get_syntax_info = user_opts.get_syntax_info or default_adapter.get_syntax_info,
 		health = user_opts.health or default_adapter.health,
 	}
