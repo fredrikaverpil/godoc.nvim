@@ -76,6 +76,29 @@ Using [lazy.nvim](https://github.com/folke/lazy.nvim):
 }
 ```
 
+Using [vim-plug](https://github.com/junegunn/vim-plug):
+
+```vim
+    Plug 'fredrikaverpil/godoc.nvim'
+
+    Plug 'nvim-telescope/telescope.nvim'  " optional
+    Plug 'folke/snacks.nvim'             " optional
+    Plug 'echasnovski/mini.pick'         " optional
+    Plug 'ibhagwan/fzf-lua'              " optional
+```
+
+### Configuring with LUA script
+
+```lua
+lua <<EOF
+require('godoc').setup({
+    picker = {
+        type = "telescope", -- native (vim.ui.select) | telescope | snacks | mini | fzf_lua
+    },
+})
+EOF
+```
+
 > [!NOTE]
 >
 > Currently only the "go" adapter is built in (and loaded by default), but
