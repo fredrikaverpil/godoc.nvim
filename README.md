@@ -91,8 +91,11 @@ Plug 'folke/snacks.nvim'              " optional
 Plug 'echasnovski/mini.pick'          " optional
 Plug 'ibhagwan/fzf-lua'               " optional
 
+" Configure the plugin and load it.
+" See the configuration further down below and apply
+" any options to the lua opts table.
 lua <<EOF
-local opts = {} -- see further down below for configuration
+local opts = {}
 require('godoc').setup(opts)
 EOF
 ```
