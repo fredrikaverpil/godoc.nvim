@@ -86,10 +86,14 @@ _Screenshot is showing the Snacks picker._
 ```vim
 Plug 'fredrikaverpil/godoc.nvim'
 
-Plug 'nvim-telescope/telescope.nvim'  " optional
-Plug 'folke/snacks.nvim'              " optional
-Plug 'echasnovski/mini.pick'          " optional
-Plug 'ibhagwan/fzf-lua'               " optional
+Plug 'nvim-telescope/telescope.nvim'   " optional
+Plug 'folke/snacks.nvim'               " optional
+Plug 'echasnovski/mini.pick'           " optional
+Plug 'ibhagwan/fzf-lua'                " optional
+
+" Install the 'go' tree-sitter parser;
+" run ':TSInstall go' to install.
+Plug 'nvim-treesitter/nvim-treesitter' " optional
 
 " Configure the plugin and load it.
 " See the configuration further down below and apply
