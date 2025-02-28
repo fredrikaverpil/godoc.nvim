@@ -91,6 +91,7 @@ Plug 'ibhagwan/fzf-lua'                " optional
 
 " Install the 'go' tree-sitter parser;
 " run ':TSInstall go' to install.
+" Alternatively, use LUA to manage tree-sitter 'go' parser. See the sample below.
 Plug 'nvim-treesitter/nvim-treesitter'
 
 " Configure the plugin and load it.
@@ -101,6 +102,12 @@ Plug 'fredrikaverpil/godoc.nvim'
 lua <<EOF
 local opts = {}
 require('godoc').setup(opts)
+
+-- Installing 'go' parser
+require'nvim-treesitter.configs'.setup {
+    ensure_installed = { "go" },
+    }
+
 EOF
 ```
 
