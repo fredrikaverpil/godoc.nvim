@@ -97,13 +97,11 @@ Plug 'ibhagwan/fzf-lua'                " optional
 Plug 'fredrikaverpil/godoc.nvim'
 
 lua <<EOF
-local opts = {}
-require('godoc').setup(opts)
-
 require'nvim-treesitter.configs'.setup {
     ensure_installed = { "go" },
 }
-
+local opts = {}
+require('godoc').setup(opts)
 EOF
 ```
 
