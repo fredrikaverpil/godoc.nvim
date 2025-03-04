@@ -1,6 +1,8 @@
 --- @class SnacksPicker: GoDocPicker
 local M = {}
 
+M.lsp_definitions = require("snacks").picker.lsp_definitions
+
 --- @param adapter GoDocAdapter
 --- @param config GoDocConfig
 --- @param callback fun(data: GoDocCallbackData)

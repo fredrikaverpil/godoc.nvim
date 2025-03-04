@@ -1,6 +1,8 @@
 --- @class Fzflua: GoDocPicker
 local M = {}
 
+M.lsp_definitions = require("fzf-lua").lsp_definitions
+
 --- @param adapter GoDocAdapter
 --- @param config GoDocConfig
 --- @param callback fun(choice: GoDocCallbackData)

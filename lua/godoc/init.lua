@@ -109,7 +109,7 @@ function M.setup(opts)
 						if data.type == "show_documentation" then
 							M.show_documentation(adapter, data.choice)
 						elseif data.type == "goto_definition" then
-							M.goto_definition(adapter, data.choice)
+							M.goto_definition(adapter, picker, data.choice)
 						end
 					end
 				end)
@@ -156,13 +156,14 @@ end
 
 --- Open source code in new buffer
 --- @param adapter GoDocAdapter
+--- @param picker GoDocPicker
 --- @param item string
-function M.goto_definition(adapter, item)
+function M.goto_definition(adapter, picker, item)
 	if not adapter.get_definition then
 		return
 	end
 
-	local definition = adapter.get_definition(item)
+	local definition = adapter.get_definition(item, picker)
 	if not definition then
 		vim.notify("No definition found for: " .. item, vim.log.levels.WARN)
 		return

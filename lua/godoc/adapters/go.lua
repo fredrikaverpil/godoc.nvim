@@ -85,17 +85,61 @@ local function get_packages()
 end
 
 --- @param package string
+--- @param picker GoDocPicker
 --- @return GoDocDefinition?
-local function get_package_definition(package)
-	-- TODO: get package entry point
-	local stdout = vim.fn.system("go list -f '{{.Dir}}' " .. package)
-	if vim.v.shell_error == 0 then
-		return {
-			filepath = vim.trim(stdout),
-			position = nil,
-		}
+local function get_package_definition(package, picker)
+	if not picker.lsp_definitions then
+		vim.notify("Picker does not implement 'lsp_definitions'", vim.log.levels.WARN)
+		return
 	end
+
+	local content = {
+		"package main",
+		'import "' .. package .. '"',
+	}
+
+	-- creating a new buffer and reading the content into it results in a gopls error: 'no package metadata for file file:///'
+	-- using a tempfile as a workaround fixes this
+	local tempfile = vim.fn.stdpath("cache") .. "/godoc-tmp.go"
+	vim.fn.writefile(content, tempfile)
+
+	-- create hidden window to run picker `get_definition` in
+	local window = vim.api.nvim_open_win(0, false, {
+		hide = true,
+		relative = "win",
+		row = 0,
+		col = 0,
+		width = 1,
+		height = 1,
+	})
+
+	vim.fn.win_execute(window, "silent! e " .. tempfile, true)
+
+	-- lsp client won't attach in time so it has to be done manually
+	local buf = vim.api.nvim_win_get_buf(window)
+	for _, client in ipairs(vim.lsp.get_clients()) do
+		if client.name == "gopls" then
+			vim.lsp.buf_attach_client(buf, client.id)
+			break
+		end
+	end
+
+	-- move cursor to the beginning of import string
+	vim.api.nvim_win_set_cursor(window, { 2, 8 })
+
+	vim.api.nvim_win_call(window, function()
+		picker.lsp_definitions()
+	end)
+
+	-- picker fails to open if this call isn't deferred
+	vim.defer_fn(function()
+		vim.api.nvim_win_close(window, true)
+		vim.cmd("!rm " .. tempfile)
+	end, 50)
 end
+
+-- running with ':so %' works on the second try, getting errors when ran trough GoDoc usercommand
+get_package_definition("bytes", { lsp_definitions = require("telescope.builtin").lsp_definitions })
 
 local function health()
 	--- @type GoDocHealthCheck[]
@@ -224,8 +268,8 @@ function M.setup(opts)
 		get_content = function(choice)
 			return vim.fn.systemlist("go doc -all " .. choice)
 		end,
-		get_definition = function(choice)
-			return get_package_definition(choice)
+		get_definition = function(choice, picker)
+			return get_package_definition(choice, picker)
 		end,
 		get_syntax_info = function()
 			return {

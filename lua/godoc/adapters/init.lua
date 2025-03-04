@@ -43,7 +43,7 @@ function M.validate_adapter(adapter)
 		{ name = "command", type = "string" },
 		{ name = "get_items", type = "function" },
 		{ name = "get_content", type = "function" },
-    { name = "get_definition", type = "function" },
+		{ name = "get_definition", type = "function" },
 		{ name = "get_syntax_info", type = "function" },
 	}
 

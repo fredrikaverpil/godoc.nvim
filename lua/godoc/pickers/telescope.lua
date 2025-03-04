@@ -1,6 +1,8 @@
 --- @class TelescopePicker: GoDocPicker
 local M = {}
 
+M.lsp_definitions = require("telescope.builtin").lsp_definitions
+
 --- @param adapter GoDocAdapter
 --- @param config GoDocConfig
 --- @param callback fun(data: GoDocCallbackData)
