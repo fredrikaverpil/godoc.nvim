@@ -32,4 +32,6 @@ function M.show(adapter, config, callback)
 	minipick.start(opts)
 end
 
+M.goto_definition = nil
+
 return M

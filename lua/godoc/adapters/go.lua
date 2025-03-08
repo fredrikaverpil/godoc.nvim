@@ -85,61 +85,45 @@ local function get_packages()
 end
 
 --- @param package string
---- @param picker GoDocPicker
---- @return GoDocDefinition?
-local function get_package_definition(package, picker)
-	if not picker.lsp_definitions then
+--- @param picker_gotodef_fun fun() | nil
+--- @return boolean
+local function goto_package_definition(package, picker_gotodef_fun)
+	if not picker_gotodef_fun then
 		vim.notify("Picker does not implement 'lsp_definitions'", vim.log.levels.WARN)
-		return
+		return false
 	end
 
-	local content = {
-		"package main",
-		'import "' .. package .. '"',
-	}
+	-- Create temp file instead of just in-memory buffer
+	local temp_dir = vim.fn.tempname()
+	vim.fn.mkdir(temp_dir, "p")
+	local temp_file = temp_dir .. "/temp.go"
 
-	-- creating a new buffer and reading the content into it results in a gopls error: 'no package metadata for file file:///'
-	-- using a tempfile as a workaround fixes this
-	local tempfile = vim.fn.stdpath("cache") .. "/godoc-tmp.go"
-	vim.fn.writefile(content, tempfile)
+	-- Write content to the actual file
+	local file = io.open(temp_file, "w")
+	file:write(string.format(
+		[[
+package main
 
-	-- create hidden window to run picker `get_definition` in
-	local window = vim.api.nvim_open_win(0, false, {
-		hide = true,
-		relative = "win",
-		row = 0,
-		col = 0,
-		width = 1,
-		height = 1,
-	})
+import "%s"
 
-	vim.fn.win_execute(window, "silent! e " .. tempfile, true)
+]],
+		package
+	))
+	file:close()
 
-	-- lsp client won't attach in time so it has to be done manually
-	local buf = vim.api.nvim_win_get_buf(window)
-	for _, client in ipairs(vim.lsp.get_clients()) do
-		if client.name == "gopls" then
-			vim.lsp.buf_attach_client(buf, client.id)
-			break
-		end
-	end
+	-- Open the actual file and set cursor immediately
+	vim.cmd("edit " .. temp_file)
+	local buf = vim.api.nvim_get_current_buf()
 
-	-- move cursor to the beginning of import string
-	vim.api.nvim_win_set_cursor(window, { 2, 8 })
+	-- Position cursor immediately
+	vim.api.nvim_win_set_cursor(0, { 3, 8 })
 
-	vim.api.nvim_win_call(window, function()
-		picker.lsp_definitions()
-	end)
+	vim.wait(100)
 
-	-- picker fails to open if this call isn't deferred
-	vim.defer_fn(function()
-		vim.api.nvim_win_close(window, true)
-		vim.cmd("!rm " .. tempfile)
-	end, 50)
+	picker_gotodef_fun()
+
+	return true
 end
-
--- running with ':so %' works on the second try, getting errors when ran trough GoDoc usercommand
-get_package_definition("bytes", { lsp_definitions = require("telescope.builtin").lsp_definitions })
 
 local function health()
 	--- @type GoDocHealthCheck[]
@@ -268,14 +252,14 @@ function M.setup(opts)
 		get_content = function(choice)
 			return vim.fn.systemlist("go doc -all " .. choice)
 		end,
-		get_definition = function(choice, picker)
-			return get_package_definition(choice, picker)
-		end,
 		get_syntax_info = function()
 			return {
 				filetype = "godoc",
 				language = "go",
 			}
+		end,
+		goto_definition = function(choice, lsp_definition_fun)
+			return goto_package_definition(choice, lsp_definition_fun)
 		end,
 		health = health,
 	}

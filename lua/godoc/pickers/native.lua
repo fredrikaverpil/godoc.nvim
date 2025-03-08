@@ -21,4 +21,6 @@ function M.show(adapter, config, callback)
 	end)
 end
 
+M.goto_definition = nil
+
 return M
