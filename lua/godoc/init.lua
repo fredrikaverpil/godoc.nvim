@@ -104,15 +104,29 @@ function M.setup(opts)
 			local picker = pickers.get_picker(M.config.picker.type)
 			if picker then
 				---@type GoDocPicker
-				picker.show(adapter, M.config, function(choice)
-					if choice then
-						M.show_documentation(adapter, choice)
+				picker.show(adapter, M.config, function(data)
+					if data.choice then
+						if data.type == "show_documentation" then
+							M.show_documentation(adapter, data.choice)
+						elseif data.type == "goto_definition" then
+							M.goto_definition(adapter, data.choice, picker.goto_definition)
+						end
 					end
 				end)
 			else
 				vim.notify("Picker not implemented: " .. M.config.picker.type, vim.log.levels.ERROR)
 			end
 		end, { nargs = "?" })
+	end
+end
+
+--- Open window based on split type
+--- @param type 'split' | 'vsplit'
+local function open_window(type)
+	if type == "split" or type == "vsplit" then
+		vim.cmd(type)
+	else
+		vim.notify("Invalid window type: " .. type, vim.log.levels.ERROR)
 	end
 end
 
@@ -130,14 +144,7 @@ function M.show_documentation(adapter, item)
 	vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
 	vim.api.nvim_set_option_value("filetype", adapter.get_syntax_info().filetype, { buf = buf })
 
-	-- Open window based on config
-	if M.config.window.type == "split" then
-		vim.cmd("split")
-	elseif M.config.window.type == "vsplit" then
-		vim.cmd("vsplit")
-	else
-		vim.notify("Invalid window type: " .. M.config.window.type, vim.log.levels.ERROR)
-	end
+	open_window(M.config.window.type)
 
 	vim.api.nvim_set_current_buf(buf)
 
@@ -145,6 +152,14 @@ function M.show_documentation(adapter, item)
 	local opts = { noremap = true, silent = true, buffer = buf }
 	vim.keymap.set("n", "q", ":close<CR>", opts)
 	vim.keymap.set("n", "<Esc>", ":close<CR>", opts)
+end
+
+--- Go to definition on chosen item
+--- @param adapter GoDocAdapter
+--- @param item string
+--- @param picker_gotodef_fun fun()?
+function M.goto_definition(adapter, item, picker_gotodef_fun)
+	adapter.goto_definition(item, picker_gotodef_fun)
 end
 
 return M

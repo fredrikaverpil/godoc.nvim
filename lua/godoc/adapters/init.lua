@@ -44,6 +44,7 @@ function M.validate_adapter(adapter)
 		{ name = "get_items", type = "function" },
 		{ name = "get_content", type = "function" },
 		{ name = "get_syntax_info", type = "function" },
+		{ name = "goto_definition", type = "function" },
 	}
 
 	for _, field in ipairs(required_fields) do
@@ -70,6 +71,7 @@ function M.override_adapter(default_adapter, user_opts)
 		get_items = user_opts.get_items or default_adapter.get_items,
 		get_content = user_opts.get_content or default_adapter.get_content,
 		get_syntax_info = user_opts.get_syntax_info or default_adapter.get_syntax_info,
+		goto_definition = user_opts.goto_definition or default_adapter.goto_definition,
 		health = user_opts.health or default_adapter.health,
 	}
 end
