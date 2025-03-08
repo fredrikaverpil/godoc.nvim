@@ -138,7 +138,7 @@ local function goto_definition(item, picker_gotodef_fun)
 	local now = os.time()
 	local filename = "godoc_" .. now .. ".go"
 	local tempfile = vim.fn.getcwd() .. "/" .. filename
-	local go_mod_filepath = vim.fn.findfile("go.mod", ".;")
+	local go_mod_filepath = vim.fn.findfile("go.mod", vim.fn.getcwd() .. ";")
 	local go_mod_dir = vim.fn.fnamemodify(go_mod_filepath, ":p:h")
 	if go_mod_dir == "" then
 		vim.notify("Failed to find go.mod file, can only gotodef on std lib", vim.log.levels.WARN)
