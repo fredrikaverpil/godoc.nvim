@@ -1,14 +1,11 @@
 --- @class Fzflua: GoDocPicker
 local M = {}
 
-M.lsp_definitions = nil
-
 --- @param adapter GoDocAdapter
 --- @param config GoDocConfig
 --- @param callback fun(choice: GoDocCallbackData)
 function M.show(adapter, config, callback)
 	local core = require("fzf-lua.core")
-	M.lsp_definitions = require("fzf-lua").lsp_definitions
 	local opts = {
 		prompt = "Select item",
 		fn_transform = function() end,

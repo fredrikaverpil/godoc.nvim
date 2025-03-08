@@ -89,7 +89,10 @@ end
 --- @return boolean
 local function goto_package_definition(package, picker_gotodef_fun)
 	if not picker_gotodef_fun then
-		vim.notify("Picker does not implement 'lsp_definitions'", vim.log.levels.WARN)
+		vim.notify(
+			"Picker does not implement a function which can be used for showing definitions",
+			vim.log.levels.WARN
+		)
 		return false
 	end
 
@@ -258,8 +261,8 @@ function M.setup(opts)
 				language = "go",
 			}
 		end,
-		goto_definition = function(choice, lsp_definition_fun)
-			return goto_package_definition(choice, lsp_definition_fun)
+		goto_definition = function(choice, picker_gotodef_fun)
+			return goto_package_definition(choice, picker_gotodef_fun)
 		end,
 		health = health,
 	}
