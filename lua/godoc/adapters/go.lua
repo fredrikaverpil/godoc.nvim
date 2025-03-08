@@ -102,6 +102,10 @@ local function goto_package_definition(package, picker_gotodef_fun)
 
 	-- Write content to the actual file
 	local file = io.open(temp_file, "w")
+  if not file then
+    vim.notify("Failed to create temporary file", vim.log.levels.ERROR)
+    return
+end
 	file:write(string.format(
 		[[
 package main
