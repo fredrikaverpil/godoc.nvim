@@ -154,16 +154,12 @@ function M.show_documentation(adapter, item)
 	vim.keymap.set("n", "<Esc>", ":close<CR>", opts)
 end
 
---- Open source code in new buffer
+--- Go to definition on chosen item
 --- @param adapter GoDocAdapter
 --- @param item string
 --- @param picker_gotodef_fun fun()?
 function M.goto_definition(adapter, item, picker_gotodef_fun)
-	local definition = adapter.goto_definition(item, picker_gotodef_fun)
-	if not definition then
-		vim.notify("No definition found for: " .. item, vim.log.levels.WARN)
-		return
-	end
+	adapter.goto_definition(item, picker_gotodef_fun)
 end
 
 return M

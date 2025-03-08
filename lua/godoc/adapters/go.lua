@@ -86,14 +86,13 @@ end
 
 --- @param package string
 --- @param picker_gotodef_fun fun() | nil
---- @return boolean
 local function goto_package_definition(package, picker_gotodef_fun)
 	if not picker_gotodef_fun then
 		vim.notify(
 			"Picker does not implement a function which can be used for showing definitions",
 			vim.log.levels.WARN
 		)
-		return false
+		return
 	end
 
 	-- Create temp file instead of just in-memory buffer
@@ -124,8 +123,6 @@ import "%s"
 	vim.wait(100)
 
 	picker_gotodef_fun()
-
-	return true
 end
 
 local function health()
