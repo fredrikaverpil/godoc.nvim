@@ -85,7 +85,7 @@ local function get_packages()
 end
 
 --- @param package string
---- @param picker_gotodef_fun fun() | nil
+--- @param picker_gotodef_fun fun()?
 local function goto_package_definition(package, picker_gotodef_fun)
 	if not picker_gotodef_fun then
 		vim.notify(
