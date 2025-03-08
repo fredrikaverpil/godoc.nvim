@@ -84,9 +84,9 @@ local function get_packages()
 	return all_packages
 end
 
---- @param package string
+--- @param item string
 --- @param picker_gotodef_fun fun()?
-local function goto_package_definition(package, picker_gotodef_fun)
+local function goto_definition(item, picker_gotodef_fun)
 	if not picker_gotodef_fun then
 		vim.notify(
 			"Picker does not implement a function which can be used for showing definitions",
@@ -98,16 +98,17 @@ local function goto_package_definition(package, picker_gotodef_fun)
 	-- write temp file
 	local content = {}
 	local cursor_pos = {}
-	local is_symbol = package:find("%.") ~= nil
+	-- check if the package contains a symbol
+	local is_symbol = string.match(item, "%.%a[%w_]*$") ~= nil
 	if is_symbol then
 		-- an import with symbol is passed, e.g. archive/tar.FileInfoNames
 		--
 		-- extract the import path (archive/tar)
-		local import_path = package:match("^(.-)%.")
+		local import_path = item:match("^(.-)%.")
 		-- extract the package name, which comes after the last slash (e.g. tar)
 		local package_name = import_path:match("([^/]+)$")
 		-- extract the symbol name, which comes after the last dot (e.g. FileInfoNames)
-		local symbol = package:match("([^%.]+)$")
+		local symbol = item:match("([^%.]+)$")
 		-- the contents of the go file, which contains imports to the package and the symbol as well as the fmt package
 		local line = '  fmt.Printf("%v", ' .. package_name .. "." .. symbol .. ")"
 		content = {
@@ -126,13 +127,13 @@ local function goto_package_definition(package, picker_gotodef_fun)
 		cursor_pos = { 9, line:find(symbol) + 1 }
 	else
 		-- a package name is passed, e.g. "archive/tar"
-		local line = 'import "' .. package .. '"'
+		local line = 'import "' .. item .. '"'
 		content = {
 			"package main",
 			"",
 			line,
 		}
-		cursor_pos = { 3, line:find(package) + 1 }
+		cursor_pos = { 3, line:find(item) + 1 }
 	end
 	local now = os.time()
 	local filename = "godoc_" .. now .. ".go"
@@ -325,7 +326,7 @@ function M.setup(opts)
 			}
 		end,
 		goto_definition = function(choice, picker_gotodef_fun)
-			return goto_package_definition(choice, picker_gotodef_fun)
+			return goto_definition(choice, picker_gotodef_fun)
 		end,
 		health = health,
 	}
