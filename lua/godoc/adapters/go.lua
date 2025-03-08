@@ -188,6 +188,7 @@ local function goto_definition(item, picker_gotodef_fun)
 	--	TODO: would be nice to do this more reliably, and not based on a timeout
 	vim.defer_fn(function()
 		vim.api.nvim_win_close(window, true)
+		vim.api.nvim_buf_delete(buf, { force = true })
 		vim.fn.delete(tempfile)
 	end, 2000)
 end
