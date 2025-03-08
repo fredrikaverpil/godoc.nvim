@@ -95,38 +95,56 @@ local function goto_package_definition(package, picker_gotodef_fun)
 		return
 	end
 
-	-- Create temp file instead of just in-memory buffer
-	local temp_dir = vim.fn.tempname()
-	vim.fn.mkdir(temp_dir, "p")
-	local temp_file = temp_dir .. "/temp.go"
+	-- write temp file
+	local content = {
+		"package main",
+		"",
+		'import "' .. package .. '"',
+	}
+	local tempdir = vim.fn.tempname()
+	vim.fn.mkdir(tempdir, "p")
+	local tempfile = tempdir .. "/temp.go"
+	vim.fn.writefile(content, tempfile)
 
-	-- Write content to the actual file
-	local file = io.open(temp_file, "w")
-  if not file then
-    vim.notify("Failed to create temporary file", vim.log.levels.ERROR)
-    return
-end
-	file:write(string.format(
-		[[
-package main
+	-- create hidden window to run picker in
+	local window = vim.api.nvim_open_win(0, false, {
+		hide = true,
+		relative = "win",
+		row = 0,
+		col = 0,
+		width = 1,
+		height = 1,
+	})
 
-import "%s"
+	-- open temp file in window and automatically create a buffer for it
+	vim.fn.win_execute(window, "silent! e " .. tempfile, true)
 
-]],
-		package
-	))
-	file:close()
+	-- get ahold of the created buffer
+	local buf = vim.api.nvim_win_get_buf(window)
 
-	-- Open the actual file and set cursor immediately
-	vim.cmd("edit " .. temp_file)
-	local buf = vim.api.nvim_get_current_buf()
+	-- wait until LSP has attached, can be queried and returns a client_id
+	local client_id = nil
+	local maxretries = 50
+	while client_id == nil and maxretries >= 0 do
+		for _, client in ipairs(vim.lsp.get_clients({ name = "gopls", bufnr = buf, window = window })) do
+			client_id = client.id
+			break
+		end
+		vim.wait(100)
+		maxretries = maxretries - 1
+	end
 
-	-- Position cursor immediately
-	vim.api.nvim_win_set_cursor(0, { 3, 8 })
+	-- execute in window
+	vim.api.nvim_win_call(window, function()
+		vim.api.nvim_win_set_cursor(0, { 3, 8 }) -- position cursor over package name
+		picker_gotodef_fun() -- run picker's goto definition function
+	end)
 
-	vim.wait(100)
-
-	picker_gotodef_fun()
+	-- close hidden window and delete temp file, but wait so that picker has time to finish
+	vim.defer_fn(function()
+		vim.api.nvim_win_close(window, true)
+		vim.fn.delete(tempfile)
+	end, 500)
 end
 
 local function health()
