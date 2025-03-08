@@ -134,7 +134,6 @@ local function goto_package_definition(package, picker_gotodef_fun)
 		}
 		cursor_pos = { 3, line:find(package) + 1 }
 	end
-	vim.notify(vim.inspect(cursor_pos))
 	local now = os.time()
 	local filename = "godoc_" .. now .. ".go"
 	local tempfile = vim.fn.getcwd() .. "/" .. filename
