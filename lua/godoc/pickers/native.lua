@@ -21,6 +21,7 @@ function M.show(adapter, config, callback)
 	end)
 end
 
+-- NOTE: goto definition is not supported in native picker
 M.goto_definition = nil
 
 return M

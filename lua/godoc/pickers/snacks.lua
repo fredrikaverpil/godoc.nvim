@@ -69,6 +69,7 @@ function M.show(adapter, config, callback)
 	snacks.picker.pick(opts)
 end
 
+--- @return nil
 function M.goto_definition()
 	require("snacks").picker.lsp_definitions()
 end

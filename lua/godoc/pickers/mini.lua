@@ -32,6 +32,7 @@ function M.show(adapter, config, callback)
 	minipick.start(opts)
 end
 
+-- NOTE: goto definition is not supported in mini picker
 M.goto_definition = nil
 
 return M

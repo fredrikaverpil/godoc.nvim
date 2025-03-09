@@ -87,8 +87,9 @@ function M.show(adapter, config, callback)
 	pickers.new(opts, {}):find()
 end
 
+--- @return nil
 function M.goto_definition()
-	return require("telescope.builtin").lsp_definitions
+	require("telescope.builtin").lsp_definitions()
 end
 
 return M

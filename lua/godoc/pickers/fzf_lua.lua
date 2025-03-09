@@ -28,8 +28,9 @@ function M.show(adapter, config, callback)
 	core.fzf_exec(adapter.get_items(), opts)
 end
 
+--- @return nil
 M.goto_definition = function()
-	return require("fzf-lua").lsp_definitions()
+	require("fzf-lua").lsp_definitions()
 end
 
 return M

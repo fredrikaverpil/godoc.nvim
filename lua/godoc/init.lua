@@ -158,6 +158,7 @@ end
 --- @param adapter GoDocAdapter
 --- @param item string
 --- @param picker_gotodef_fun fun()?
+--- @return nil
 function M.goto_definition(adapter, item, picker_gotodef_fun)
 	adapter.goto_definition(item, picker_gotodef_fun)
 end
