@@ -130,7 +130,7 @@ local function goto_definition(item, picker_gotodef_fun)
 		content = {
 			"package main",
 			"",
-			line = 'import "' .. item .. '"',
+			'import "' .. item .. '"',
 		}
 		cursor_pos = { 3, 9 }
 	end
