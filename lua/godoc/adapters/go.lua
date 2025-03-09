@@ -98,7 +98,7 @@ local function goto_definition(item, picker_gotodef_fun)
 	-- write temp file
 	local content = {}
 	local cursor_pos = {}
-	-- check if the package contains a symbol
+	-- check if the chosen item contains a symbol
 	local is_symbol = string.match(item, "%.%a[%w_]*$") ~= nil
 	if is_symbol then
 		-- an import with symbol is passed, e.g. archive/tar.FileInfoNames
@@ -127,13 +127,12 @@ local function goto_definition(item, picker_gotodef_fun)
 		cursor_pos = { 9, line:find(symbol) + 1 }
 	else
 		-- a package name is passed, e.g. "archive/tar"
-		local line = 'import "' .. item .. '"'
 		content = {
 			"package main",
 			"",
-			line,
+			line = 'import "' .. item .. '"',
 		}
-		cursor_pos = { 3, line:find(item) + 1 }
+		cursor_pos = { 3, 9 }
 	end
 	local now = os.time()
 	local filename = "godoc_" .. now .. ".go"
