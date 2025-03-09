@@ -84,6 +84,94 @@ local function get_packages()
 	return all_packages
 end
 
+--- @param item string
+--- @param picker_gotodef_fun fun()
+local function goto_definition(item, picker_gotodef_fun)
+	-- write temp file
+	local content = {}
+	local cursor_pos = {}
+	-- check if the chosen item contains a symbol
+	local is_symbol = string.match(item, "%.%a[%w_]*$") ~= nil
+	if is_symbol then
+		-- an import with symbol is passed, e.g. archive/tar.FileInfoNames
+		--
+		-- extract the import path (archive/tar)
+		local import_path = item:match("^(.-)%.")
+		-- extract the package name, which comes after the last slash (e.g. tar)
+		local package_name = import_path:match("([^/]+)$")
+		-- extract the symbol name, which comes after the last dot (e.g. FileInfoNames)
+		local symbol = item:match("([^%.]+)$")
+		-- the contents of the go file, which contains imports to the package and the symbol as well as the fmt package
+		local line = '  fmt.Printf("%v", ' .. package_name .. "." .. symbol .. ")"
+		content = {
+			"package main",
+			"",
+			"import (",
+			'  "' .. import_path .. '"',
+			'  "fmt"',
+			")",
+			"",
+			"func main() {",
+			line,
+			"}",
+		}
+		-- put the position/cursor on the symbol, e.g. on the 'F' of FileInfoNames
+		cursor_pos = { 9, line:find(symbol) + 1 }
+	else
+		-- a package name is passed, e.g. "archive/tar"
+		content = {
+			"package main",
+			"",
+			'import "' .. item .. '"',
+		}
+		cursor_pos = { 3, 9 }
+	end
+	local now = os.time()
+	local filename = "godoc_" .. now .. ".go"
+	local tempfile = vim.fn.getcwd() .. "/" .. filename
+	local go_mod_filepath = vim.fn.findfile("go.mod", vim.fn.getcwd() .. ";")
+	local go_mod_dir = vim.fn.fnamemodify(go_mod_filepath, ":p:h")
+	if go_mod_dir == "" then
+		vim.notify("Failed to find go.mod file, can only gotodef on std lib", vim.log.levels.WARN)
+	else
+		tempfile = go_mod_dir .. "/" .. filename
+	end
+	vim.fn.writefile(content, tempfile)
+
+	-- Open the temp file in the current (godoc-managed) buffer
+	vim.cmd("silent! e " .. tempfile)
+	local window = vim.api.nvim_get_current_win()
+	local buf = vim.api.nvim_get_current_buf()
+
+	-- Set buffer options
+	vim.api.nvim_set_option_value("filetype", "go", { buf = buf })
+	vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
+	vim.diagnostic.enable(false, { bufnr = buf })
+
+	-- Wait until LSP has attached, can be queried and returns a client_id
+	local client_id = nil
+	local maxretries = 50
+	while client_id == nil and maxretries >= 0 do
+		for _, client in ipairs(vim.lsp.get_clients({ name = "gopls", bufnr = buf })) do
+			client_id = client.id
+			break
+		end
+		vim.wait(50)
+		maxretries = maxretries - 1
+	end
+
+	-- Position cursor at the right spot
+	vim.api.nvim_win_set_cursor(window, cursor_pos)
+
+	-- Execute goto definition in the new window
+	vim.api.nvim_win_call(window, function()
+		picker_gotodef_fun()
+	end)
+
+	-- Delete the temp file on disk
+	vim.fn.delete(tempfile)
+end
+
 local function health()
 	--- @type GoDocHealthCheck[]
 	local checks = {}
@@ -216,6 +304,9 @@ function M.setup(opts)
 				filetype = "godoc",
 				language = "go",
 			}
+		end,
+		goto_definition = function(choice, picker_gotodef_fun)
+			return goto_definition(choice, picker_gotodef_fun)
 		end,
 		health = health,
 	}

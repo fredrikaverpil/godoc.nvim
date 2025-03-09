@@ -2,7 +2,7 @@ local M = {}
 
 --- @param adapter GoDocAdapter
 --- @param config GoDocConfig
---- @param callback fun(choice: string|nil)
+--- @param callback fun(choice: GoDocCallbackData)
 function M.show(adapter, config, callback)
 	-- Create picker configuration
 	local opts = {
@@ -16,7 +16,12 @@ function M.show(adapter, config, callback)
 		opts = vim.tbl_deep_extend("force", opts, config.picker.native)
 	end
 
-	vim.ui.select(adapter.get_items(), opts, callback)
+	vim.ui.select(adapter.get_items(), opts, function(choice)
+		callback({ type = "show_documentation", choice = choice })
+	end)
 end
+
+-- NOTE: goto definition is not supported in native picker
+M.goto_definition = nil
 
 return M
