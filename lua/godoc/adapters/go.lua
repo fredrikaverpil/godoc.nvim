@@ -85,16 +85,8 @@ local function get_packages()
 end
 
 --- @param item string
---- @param picker_gotodef_fun fun()?
+--- @param picker_gotodef_fun fun()
 local function goto_definition(item, picker_gotodef_fun)
-	if not picker_gotodef_fun then
-		vim.notify(
-			"Picker does not implement a function which can be used for showing definitions",
-			vim.log.levels.WARN
-		)
-		return
-	end
-
 	-- write temp file
 	local content = {}
 	local cursor_pos = {}
@@ -146,50 +138,38 @@ local function goto_definition(item, picker_gotodef_fun)
 	end
 	vim.fn.writefile(content, tempfile)
 
-	-- create hidden window to run picker in
-	local window = vim.api.nvim_open_win(0, false, {
-		hide = true,
-		relative = "win",
-		row = 0,
-		col = 0,
-		width = 1,
-		height = 1,
-	})
+	-- Open the temp file in the current (godoc-managed) buffer
+	vim.cmd("silent! e " .. tempfile)
+	local window = vim.api.nvim_get_current_win()
+	local buf = vim.api.nvim_get_current_buf()
 
-	-- open temp file in window and automatically create a buffer for it
-	vim.fn.win_execute(window, "silent! e " .. tempfile, true)
-
-	-- get ahold of the created buffer
-	local buf = vim.api.nvim_win_get_buf(window)
-
-	-- disable diagnostics for the buffer
+	-- Set buffer options
+	vim.api.nvim_set_option_value("filetype", "go", { buf = buf })
+	vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
 	vim.diagnostic.enable(false, { bufnr = buf })
 
-	-- wait until LSP has attached, can be queried and returns a client_id
+	-- Wait until LSP has attached, can be queried and returns a client_id
 	local client_id = nil
 	local maxretries = 50
 	while client_id == nil and maxretries >= 0 do
-		for _, client in ipairs(vim.lsp.get_clients({ name = "gopls", bufnr = buf, window = window })) do
+		for _, client in ipairs(vim.lsp.get_clients({ name = "gopls", bufnr = buf })) do
 			client_id = client.id
 			break
 		end
-		vim.wait(100)
+		vim.wait(50)
 		maxretries = maxretries - 1
 	end
 
-	-- execute in window
+	-- Position cursor at the right spot
+	vim.api.nvim_win_set_cursor(window, cursor_pos)
+
+	-- Execute goto definition in the new window
 	vim.api.nvim_win_call(window, function()
-		vim.api.nvim_win_set_cursor(0, cursor_pos) -- position cursor over package name
-		picker_gotodef_fun() -- run picker's goto definition function
+		picker_gotodef_fun()
 	end)
 
-	--	close hidden window and delete temp file, but wait so that picker has time to finish
-	--	TODO: would be nice to do this more reliably, and not based on a timeout
-	vim.defer_fn(function()
-		vim.api.nvim_win_close(window, true)
-		vim.api.nvim_buf_delete(buf, { force = true })
-		vim.fn.delete(tempfile)
-	end, 2000)
+	-- Delete the temp file on disk
+	vim.fn.delete(tempfile)
 end
 
 local function health()

@@ -82,6 +82,16 @@ local function configure_adapters(config)
 	return configured_adapters
 end
 
+--- Open window based on split type
+--- @param type 'split' | 'vsplit'
+local function open_window(type)
+	if type == "split" or type == "vsplit" then
+		vim.cmd(type)
+	else
+		vim.notify("Invalid window type: " .. type, vim.log.levels.ERROR)
+	end
+end
+
 -- Set up the plugin with user config
 --- @param opts? GoDocConfig
 function M.setup(opts)
@@ -107,8 +117,10 @@ function M.setup(opts)
 				picker.show(adapter, M.config, function(data)
 					if data.choice then
 						if data.type == "show_documentation" then
+							open_window(M.config.window.type)
 							M.show_documentation(adapter, data.choice)
 						elseif data.type == "goto_definition" then
+							open_window(M.config.window.type)
 							M.goto_definition(adapter, data.choice, picker.goto_definition)
 						end
 					end
@@ -117,16 +129,6 @@ function M.setup(opts)
 				vim.notify("Picker not implemented: " .. M.config.picker.type, vim.log.levels.ERROR)
 			end
 		end, { nargs = "?" })
-	end
-end
-
---- Open window based on split type
---- @param type 'split' | 'vsplit'
-local function open_window(type)
-	if type == "split" or type == "vsplit" then
-		vim.cmd(type)
-	else
-		vim.notify("Invalid window type: " .. type, vim.log.levels.ERROR)
 	end
 end
 
@@ -144,8 +146,6 @@ function M.show_documentation(adapter, item)
 	vim.api.nvim_set_option_value("modifiable", false, { buf = buf })
 	vim.api.nvim_set_option_value("filetype", adapter.get_syntax_info().filetype, { buf = buf })
 
-	open_window(M.config.window.type)
-
 	vim.api.nvim_set_current_buf(buf)
 
 	-- Set up keymaps for the documentation window
@@ -156,11 +156,17 @@ end
 
 --- Go to definition on chosen item
 --- @param adapter GoDocAdapter
---- @param item string
---- @param picker_gotodef_fun fun()?
+--- @param choice string The chosen item (package, symbol)
+--- @param picker_gotodef_fun fun()? The picker's goto_definition function
 --- @return nil
-function M.goto_definition(adapter, item, picker_gotodef_fun)
-	adapter.goto_definition(item, picker_gotodef_fun)
+function M.goto_definition(adapter, choice, picker_gotodef_fun)
+	if not picker_gotodef_fun then
+		vim.notify(
+			"Picker does not implement a function which can be used for showing definitions",
+			vim.log.levels.WARN
+		)
+	end
+	adapter.goto_definition(choice, picker_gotodef_fun)
 end
 
 return M
