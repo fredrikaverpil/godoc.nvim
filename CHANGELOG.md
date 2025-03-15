@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://github.com/fredrikaverpil/godoc.nvim/compare/v2.1.0...v2.2.0) (2025-03-15)
+
+
+### Features
+
+* goto definition ([#42](https://github.com/fredrikaverpil/godoc.nvim/issues/42)) ([9b3871d](https://github.com/fredrikaverpil/godoc.nvim/commit/9b3871d02cc12fe03e1e078610b231bd80180735))
+
 ## [2.1.0](https://github.com/fredrikaverpil/godoc.nvim/compare/v2.0.1...v2.1.0) (2025-02-27)
 
 
