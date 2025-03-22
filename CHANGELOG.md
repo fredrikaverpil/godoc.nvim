@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.0](https://github.com/fredrikaverpil/godoc.nvim/compare/v2.2.0...v2.3.0) (2025-03-22)
+
+
+### Features
+
+* fzf_lua previewer ([#48](https://github.com/fredrikaverpil/godoc.nvim/issues/48)) ([a6fdde5](https://github.com/fredrikaverpil/godoc.nvim/commit/a6fdde583c08da348dbc7875a142b2d91a6ff0ac))
+
 ## [2.2.0](https://github.com/fredrikaverpil/godoc.nvim/compare/v2.1.0...v2.2.0) (2025-03-15)
 
 
