@@ -40,8 +40,7 @@ _Screenshot is showing the Snacks picker._
     preview
   - [Snacks](https://github.com/folke/snacks.nvim) picker with preview
   - [mini.pick](https://github.com/echasnovski/mini.pick) picker with preview
-  - [fzf-lua](https://github.com/ibhagwan/fzf-lua) picker (no preview, feel free
-    to contribute via PR!)
+  - [fzf-lua](https://github.com/ibhagwan/fzf-lua) picker with preview
 - Adapters can extend functionality to cover other languages (and anything else
   you might want to pick, really).
 
