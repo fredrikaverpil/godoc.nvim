@@ -16,8 +16,7 @@ end
 function documentation_previewer:populate_preview_buf(entry_str)
     local tmpbuf = self:get_tmp_buffer()
     vim.api.nvim_set_option_value("filetype", "godoc", { buf = tmpbuf })
-    vim.api.nvim_buf_set_lines(tmpbuf, 0, -1, false, self.opts.adapter.get_content(entry_str)
-    )
+    vim.api.nvim_buf_set_lines(tmpbuf, 0, -1, false, self.opts.adapter.get_content(entry_str))
     self:set_preview_buf(tmpbuf)
 end
 
