@@ -302,7 +302,7 @@ function M.setup(opts)
 		get_syntax_info = function()
 			return {
 				filetype = "godoc",
-				language = "go",
+				language = "text",
 			}
 		end,
 		goto_definition = function(choice, picker_gotodef_fun)
