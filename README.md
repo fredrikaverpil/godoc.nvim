@@ -29,11 +29,13 @@ _Screenshot is showing the Snacks picker._
 
 ## Features
 
-- Search and browse docs for Go standard library packages and project packages.
-- Go to definition capability.
-- Syntax highlighting for Go documentation.
+- Search and browse docs for Go standard library packages and project packages
+- Go to definition capability
 - Optionally leverage [`stdsym`](https://github.com/lotusirous/gostdsym) for
-  symbols searching.
+  symbols searching
+- Optional syntax highlighting using tree-sitter with
+  [tree-sitter-godoc](https://github.com/fredrikaverpil/tree-sitter-godoc) and
+  [tree-sitter-go](https://github.com/tree-sitter/tree-sitter-go) parsers
 - Supports pickers:
   - Native Neovim picker (no preview)
   - [Telescope](https://github.com/nvim-telescope/telescope.nvim) picker with
@@ -42,13 +44,12 @@ _Screenshot is showing the Snacks picker._
   - [mini.pick](https://github.com/echasnovski/mini.pick) picker with preview
   - [fzf-lua](https://github.com/ibhagwan/fzf-lua) picker with preview
 - Adapters can extend functionality to cover other languages (and anything else
-  you might want to pick, really).
+  you might want to pick, really)
 
 ## Requirements
 
 - Neovim >= 0.8.0
 - Go installation with `go doc` and `go list` commands available
-- Tree-sitter (for syntax highlighting)
 
 ## Installation
 
@@ -68,15 +69,10 @@ _Screenshot is showing the Snacks picker._
         { "folke/snacks.nvim" }, -- optional
         { "echasnovski/mini.pick" }, -- optional
         { "ibhagwan/fzf-lua" }, -- optional
-        {
-            "nvim-treesitter/nvim-treesitter",
-            opts = {
-              ensure_installed = { "go" },
-            },
-        },
     },
     build = "go install github.com/lotusirous/gostdsym/stdsym@latest", -- optional
     cmd = { "GoDoc" }, -- optional
+    ft = "godoc", -- optional
     opts = {}, -- see further down below for configuration
 }
 ```
@@ -85,7 +81,6 @@ _Screenshot is showing the Snacks picker._
 
 ```vim
 " Dependencies
-Plug 'nvim-treesitter/nvim-treesitter'
 Plug 'nvim-telescope/telescope.nvim'   " optional
 Plug 'folke/snacks.nvim'               " optional
 Plug 'echasnovski/mini.pick'           " optional
@@ -97,12 +92,90 @@ Plug 'ibhagwan/fzf-lua'                " optional
 Plug 'fredrikaverpil/godoc.nvim'
 
 lua <<EOF
-require'nvim-treesitter.configs'.setup {
-    ensure_installed = { "go" },
-}
 local opts = {}
 require('godoc').setup(opts)
 EOF
+```
+
+### Syntax highlighting via tree-sitter parsers
+
+By default, godoc.nvim does not apply any syntax highlighting to `go doc`
+documentation. But by leveraging the
+[tree-sitter-godoc](https://github.com/fredrikaverpil/tree-sitter-godoc) and
+[tree-sitter-go](https://github.com/tree-sitter/tree-sitter-go) parsers, you can
+enable syntax highlighting.
+
+The way it works is by having tree-sitter-godoc provide some basic highlighting,
+but more importantly, identify where actual Go code is. Then, tree-sitter-go can
+step in and provide proper Go code syntax highlighting via injection queries.
+
+**Add tree-sitter as a dependency** and make it aware of the tree-sitter-godoc
+parser:
+
+```lua
+{
+    "fredrikaverpil/godoc.nvim",
+    version = "*",
+    dependencies = {
+        {
+            "nvim-treesitter/nvim-treesitter",
+            branch = "main",
+            build = ":TSUpdate godoc go", -- install/update parsers
+            config = function()
+                require("nvim-treesitter.parsers").godoc = {
+                    install_info = {
+                        url = "https://github.com/fredrikaverpil/tree-sitter-godoc",
+                        files = { "src/parser.c" },
+                        version = "*",
+                    },
+                    filetype = "godoc",
+                }
+
+                -- Map godoc filetype to use godoc parser
+                vim.treesitter.language.register('godoc', 'godoc')
+
+                -- Enable :TSInstall godoc, :TSUpdate godoc
+                vim.api.nvim_create_autocmd("User", {
+                  pattern = "TSUpdate",
+                  callback = function()
+                    require("nvim-treesitter.parsers").godoc = parser_config
+                  end,
+                })
+
+                -- Enable godoc filetype for .godoc files (optional)
+                vim.api.nvim_create_autocmd({ "BufRead", "BufNewFile" }, {
+                  pattern = "*.godoc",
+                  callback = function()
+                    vim.bo.filetype = "godoc"
+                  end,
+                })
+            end,
+        },
+    },
+    cmd = { "GoDoc" },
+    ft = "godoc",
+    opts = {
+        adapters = {
+            {
+                name = "go",
+                opts = {
+                    get_syntax_info = function()
+                        return {
+                            filetype = "godoc",
+                            language = "godoc",  -- Enable tree-sitter godoc parser
+                        }
+                    end,
+                },
+            },
+        },
+    },
+}
+```
+
+**Install the parsers**:
+
+```vim
+:TSInstall go godoc
 ```
 
 ## Usage
@@ -147,7 +220,7 @@ local godoc = require("godoc")
                 get_syntax_info = function()
                     return {
                         filetype = "godoc", -- filetype for the buffer
-                        language = "go", -- tree-sitter parser, for syntax highlighting
+                        language = "", -- tree-sitter parser, for syntax highlighting
                     }
                 end,
             },
@@ -169,11 +242,7 @@ local godoc = require("godoc")
 }
 ```
 
-> [!TIP]
->
-> If the syntax highlighting is too "busy" for you, set `language = "text"`.
-
-For further details, see the actual implementations.
+For further details, see the actual implementation.
 
 Adapters:
 
@@ -346,7 +415,3 @@ improve on existing ones!
 
 Contributions are very much welcome! ❤️ Please feel free to submit a pull
 request.
-
-I would be extra interested in discussions and contributions around improving
-the syntax highlighting of `go doc` output, as it the output becomes quite
-"busy" and incoherent now, when applying the syntax highlighting of Go syntax.
