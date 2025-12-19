@@ -10,7 +10,7 @@ Fuzzy search Go docs from within Neovim.
 
 ## Screenshots
 
-![Snacks picker](https://github.com/user-attachments/assets/928593b8-29d1-422a-a799-9d8617c086ba)
+![Snacks picker](https://github.com/user-attachments/assets/4c364390-2d4f-4508-9c2a-a589c99e1078)
 _Screenshot is showing the Snacks picker._
 
 <details>
