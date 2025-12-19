@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0](https://github.com/fredrikaverpil/godoc.nvim/compare/v2.3.0...v3.0.0) (2025-12-19)
+
+
+### ⚠ BREAKING CHANGES
+
+* add support for tree-sitter-godoc parser ([#51](https://github.com/fredrikaverpil/godoc.nvim/issues/51))
+
+### Features
+
+* add support for tree-sitter-godoc parser ([#51](https://github.com/fredrikaverpil/godoc.nvim/issues/51)) ([df690ff](https://github.com/fredrikaverpil/godoc.nvim/commit/df690ff12bc799e11f163ea80187953b5895958a))
+
 ## [2.3.0](https://github.com/fredrikaverpil/godoc.nvim/compare/v2.2.0...v2.3.0) (2025-03-22)
 
 
