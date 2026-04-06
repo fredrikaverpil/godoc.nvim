@@ -3,7 +3,9 @@ local M = {}
 -- Available adapters and their default options
 --- @type table<string, fun(opts: table): GoDocAdapter>
 M.available_adapters = {
-	go = require("godoc.adapters.go").setup,
+	go = function(opts)
+		return require("godoc.adapters.go").setup(opts)
+	end,
 }
 
 --- Get list of available built-in adapter names
