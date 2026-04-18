@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/fredrikaverpil/godoc.nvim/compare/v3.0.0...v3.0.1) (2026-04-18)
+
+
+### Bug Fixes
+
+* adhere to neovim best practices (lazy-loading) ([#55](https://github.com/fredrikaverpil/godoc.nvim/issues/55)) ([b898b6e](https://github.com/fredrikaverpil/godoc.nvim/commit/b898b6e4c985020b850ef35cf4d0751468d076ee))
+
 ## [3.0.0](https://github.com/fredrikaverpil/godoc.nvim/compare/v2.3.0...v3.0.0) (2025-12-19)
 
 
