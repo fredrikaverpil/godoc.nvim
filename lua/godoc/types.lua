@@ -1,7 +1,9 @@
+--- User-supplied configuration. All fields are optional — anything you omit
+--- falls back to the defaults from `require("godoc").defaults`.
 --- @class GoDocConfig
---- @field adapters GoDocAdapterConfig[] List of adapter configurations
---- @field window GoDocWindowConfig Window configuration
---- @field picker GoDocPickerConfig Picker configuration
+--- @field adapters? GoDocAdapterConfig[] List of adapter configurations
+--- @field window? GoDocWindowConfig Window configuration
+--- @field picker? GoDocPickerConfig Picker configuration
 
 --- @class GoDocAdapter
 --- @field command string The vim command name to register

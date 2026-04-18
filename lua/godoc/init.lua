@@ -127,6 +127,43 @@ local function open_window(type)
   end
 end
 
+--- Run the picker/documentation flow for the given adapter.
+--- Uses M.config when setup() has been called, otherwise falls back to defaults
+--- so plugin/godoc.lua's auto-registered :GoDoc works without setup().
+--- @param adapter GoDocAdapter
+--- @param args table command arguments table from nvim_create_user_command
+local function dispatch(adapter, args)
+  local config = M.config or M.defaults
+
+  if args.args ~= nil and args.args ~= "" then
+    M.show_documentation(adapter, args.args)
+    return
+  end
+
+  local pickers = require("godoc.pickers")
+  local picker = pickers.get_picker(config.picker.type)
+  if not picker then
+    vim.notify(
+      "Picker not implemented: " .. config.picker.type,
+      vim.log.levels.ERROR
+    )
+    return
+  end
+
+  ---@type GoDocPicker
+  picker.show(adapter, config, function(data)
+    if data.choice then
+      if data.type == "show_documentation" then
+        open_window(config.window.type)
+        M.show_documentation(adapter, data.choice)
+      elseif data.type == "goto_definition" then
+        open_window(config.window.type)
+        M.goto_definition(adapter, data.choice, picker.goto_definition)
+      end
+    end
+  end)
+end
+
 --- Create a user command that delegates to the given adapter.
 --- @param command string
 local function register_command(command)
@@ -142,35 +179,38 @@ local function register_command(command)
       return
     end
 
-    -- If args were passed, show documentation directly
-    if args.args ~= nil and args.args ~= "" then
-      M.show_documentation(adapter, args.args)
-      return
-    end
-
-    -- Show picker
-    local pickers = require("godoc.pickers")
-    local picker = pickers.get_picker(M.config.picker.type)
-    if picker then
-      ---@type GoDocPicker
-      picker.show(adapter, M.config, function(data)
-        if data.choice then
-          if data.type == "show_documentation" then
-            open_window(M.config.window.type)
-            M.show_documentation(adapter, data.choice)
-          elseif data.type == "goto_definition" then
-            open_window(M.config.window.type)
-            M.goto_definition(adapter, data.choice, picker.goto_definition)
-          end
-        end
-      end)
-    else
-      vim.notify(
-        "Picker not implemented: " .. M.config.picker.type,
-        vim.log.levels.ERROR
-      )
-    end
+    dispatch(adapter, args)
   end, { nargs = "?" })
+end
+
+--- Run the built-in go adapter. Entry point for plugin/godoc.lua's :GoDoc so
+--- that the command works out-of-the-box without the user calling setup().
+--- Honors user overrides from M.config.adapters when setup() has been called.
+--- @param args table command arguments table from nvim_create_user_command
+function M._run_default_go(args)
+  local config = M.config or M.defaults
+  local adapters = require("godoc.adapters")
+
+  local default_adapter = adapters.get_adapter("go")
+  if not default_adapter then
+    vim.notify("Built-in go adapter not available", vim.log.levels.ERROR)
+    return
+  end
+
+  -- Apply user's go adapter overrides (if any) so customizations propagate to :GoDoc.
+  local go_opts
+  for _, adapter_config in ipairs(config.adapters or {}) do
+    if adapter_config.name == "go" then
+      go_opts = adapter_config.opts
+      break
+    end
+  end
+  local adapter = adapters.override_adapter(default_adapter, go_opts)
+
+  local syntax = adapter.get_syntax_info()
+  vim.treesitter.language.register(syntax.language, { syntax.filetype })
+
+  dispatch(adapter, args)
 end
 
 --- Eagerly initialize a single adapter and register its command.
@@ -200,12 +240,40 @@ end
 function M.setup(opts)
   M.config = vim.tbl_deep_extend("force", M.defaults, opts or {})
 
+  -- Tell plugin/godoc.lua that the user owns the plugin — it should not
+  -- auto-register :GoDoc (in case plugin scripts load after user init).
+  vim.g._godoc_user_configured = true
+
+  -- If any adapter in the user's config explicitly claims the "GoDoc" command
+  -- name, remove the auto-registered :GoDoc so the loop below can assign it.
+  -- Otherwise leave :GoDoc alone — the user hasn't asked for it to change, so
+  -- it keeps serving the built-in default alongside any additional commands
+  -- they configure.
+  if vim.g._godoc_auto_registered then
+    local user_claims_godoc = false
+    for _, adapter_config in ipairs(M.config.adapters) do
+      local cmd = (adapter_config.opts and adapter_config.opts.command)
+        or adapter_config.command
+      if cmd == "GoDoc" then
+        user_claims_godoc = true
+        break
+      end
+    end
+    if user_claims_godoc then
+      pcall(vim.api.nvim_del_user_command, "GoDoc")
+      vim.g._godoc_auto_registered = false
+    end
+  end
+
   for _, adapter_config in ipairs(M.config.adapters) do
     local command = (adapter_config.opts and adapter_config.opts.command)
       or adapter_config.command
     if command then
-      -- Command name known from config — register lazily
-      register_command(command)
+      -- Skip if a command with this name already exists (e.g., registered
+      -- by another plugin, or the user's vimrc) — don't clobber.
+      if vim.fn.exists(":" .. command) == 0 then
+        register_command(command)
+      end
     elseif
       adapter_config.setup and type(adapter_config.setup) == "function"
     then
