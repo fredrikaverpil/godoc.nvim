@@ -1,7 +1,3 @@
-require("godoc.types")
-local pickers = require("godoc.pickers")
-local adapters = require("godoc.adapters")
-
 local M = {}
 
 -- Default configuration.
@@ -32,14 +28,17 @@ M.defaults = {
 --- @type GoDocConfig
 M.config = nil
 
--- The configured adapters, after having set them up.
---- @type GoDocAdapter[]
-M.configured_adapters = {}
+-- The configured adapters, keyed by command name.
+--- @type table<string, GoDocAdapter>
+M._adapters = {}
 
---- @param config? GoDocConfig
---- @return GoDocAdapter[]
+M._lazy_initialized = false
+
+--- @param config GoDocConfig
 local function configure_adapters(config)
-	if not config or not config.adapters or type(config.adapters) ~= "table" then
+	local adapters = require("godoc.adapters")
+
+	if not config.adapters or type(config.adapters) ~= "table" then
 		vim.notify("Invalid configuration: adapters must be a list", vim.log.levels.ERROR)
 		return {}
 	end
@@ -82,6 +81,25 @@ local function configure_adapters(config)
 	return configured_adapters
 end
 
+--- Lazy-initialize adapters and treesitter on first command use.
+--- Also called by health.lua so :checkhealth works before any command is run.
+function M._ensure_initialized()
+	if M._lazy_initialized then
+		return
+	end
+	M._lazy_initialized = true
+
+	local configured = configure_adapters(M.config)
+	for _, adapter in ipairs(configured) do
+		-- Skip adapters that were already eagerly initialized
+		if not M._adapters[adapter.command] then
+			local syntax = adapter.get_syntax_info()
+			vim.treesitter.language.register(syntax.language, { syntax.filetype })
+			M._adapters[adapter.command] = adapter
+		end
+	end
+end
+
 --- Open window based on split type
 --- @param type 'split' | 'vsplit'
 local function open_window(type)
@@ -92,43 +110,78 @@ local function open_window(type)
 	end
 end
 
+--- Create a user command that delegates to the given adapter.
+--- @param command string
+local function register_command(command)
+	vim.api.nvim_create_user_command(command, function(args)
+		M._ensure_initialized()
+
+		local adapter = M._adapters[command]
+		if not adapter then
+			vim.notify("No adapter found for command: " .. command, vim.log.levels.ERROR)
+			return
+		end
+
+		-- If args were passed, show documentation directly
+		if args.args ~= nil and args.args ~= "" then
+			M.show_documentation(adapter, args.args)
+			return
+		end
+
+		-- Show picker
+		local pickers = require("godoc.pickers")
+		local picker = pickers.get_picker(M.config.picker.type)
+		if picker then
+			---@type GoDocPicker
+			picker.show(adapter, M.config, function(data)
+				if data.choice then
+					if data.type == "show_documentation" then
+						open_window(M.config.window.type)
+						M.show_documentation(adapter, data.choice)
+					elseif data.type == "goto_definition" then
+						open_window(M.config.window.type)
+						M.goto_definition(adapter, data.choice, picker.goto_definition)
+					end
+				end
+			end)
+		else
+			vim.notify("Picker not implemented: " .. M.config.picker.type, vim.log.levels.ERROR)
+		end
+	end, { nargs = "?" })
+end
+
+--- Eagerly initialize a single adapter and register its command.
+--- Used for third-party adapters whose command name is only known at runtime.
+--- @param adapter_config table
+local function register_eager(adapter_config)
+	local adapters = require("godoc.adapters")
+	local default_adapter = adapter_config.setup()
+	local final_adapter = adapters.override_adapter(default_adapter, adapter_config.opts)
+	local is_valid, error_message = adapters.validate_adapter(final_adapter)
+	if not is_valid then
+		vim.notify(string.format("Invalid third-party adapter: %s", error_message), vim.log.levels.WARN)
+		return
+	end
+	local syntax = final_adapter.get_syntax_info()
+	vim.treesitter.language.register(syntax.language, { syntax.filetype })
+	M._adapters[final_adapter.command] = final_adapter
+	register_command(final_adapter.command)
+end
+
 -- Set up the plugin with user config
 --- @param opts? GoDocConfig
 function M.setup(opts)
 	M.config = vim.tbl_deep_extend("force", M.defaults, opts or {})
-	M.configured_adapters = configure_adapters(M.config)
 
-	for _, adapter in ipairs(M.configured_adapters) do
-		-- Set up syntax highlighting
-		vim.treesitter.language.register(adapter.get_syntax_info().language, { adapter.get_syntax_info().filetype })
-
-		-- Create user command
-		vim.api.nvim_create_user_command(adapter.command, function(args)
-			-- if args were passed, show documentation directly
-			if args.args ~= nil and args.args ~= "" then
-				M.show_documentation(adapter, args.args)
-				return
-			end
-
-			-- Show picker
-			local picker = pickers.get_picker(M.config.picker.type)
-			if picker then
-				---@type GoDocPicker
-				picker.show(adapter, M.config, function(data)
-					if data.choice then
-						if data.type == "show_documentation" then
-							open_window(M.config.window.type)
-							M.show_documentation(adapter, data.choice)
-						elseif data.type == "goto_definition" then
-							open_window(M.config.window.type)
-							M.goto_definition(adapter, data.choice, picker.goto_definition)
-						end
-					end
-				end)
-			else
-				vim.notify("Picker not implemented: " .. M.config.picker.type, vim.log.levels.ERROR)
-			end
-		end, { nargs = "?" })
+	for _, adapter_config in ipairs(M.config.adapters) do
+		local command = (adapter_config.opts and adapter_config.opts.command) or adapter_config.command
+		if command then
+			-- Command name known from config — register lazily
+			register_command(command)
+		elseif adapter_config.setup and type(adapter_config.setup) == "function" then
+			-- Third-party adapter without opts.command — must call setup() to learn the command name
+			register_eager(adapter_config)
+		end
 	end
 end
 

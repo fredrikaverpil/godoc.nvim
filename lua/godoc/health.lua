@@ -14,8 +14,11 @@ function M.check()
 		health.ok("Plugin configured")
 	end
 
-	local configured_adapters = require("godoc").configured_adapters
-	for _, adapter in ipairs(configured_adapters) do
+	-- Ensure adapters are initialized so health checks work even if no command has been run yet.
+	local godoc = require("godoc")
+	godoc._ensure_initialized()
+
+	for _, adapter in pairs(godoc._adapters) do
 		-- Get adapter name for display
 		local name = adapter.command
 		health.start(name)
