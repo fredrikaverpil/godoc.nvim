@@ -3,44 +3,44 @@ local health = vim.health or require("health")
 local M = {}
 
 function M.check()
-	health.start("godoc.nvim")
+  health.start("godoc.nvim")
 
-	-- Check plugin setup
-	local config = require("godoc").config
-	if not config then
-		health.error("Plugin not configured")
-		return
-	else
-		health.ok("Plugin configured")
-	end
+  -- Check plugin setup
+  local config = require("godoc").config
+  if not config then
+    health.error("Plugin not configured")
+    return
+  else
+    health.ok("Plugin configured")
+  end
 
-	-- Ensure adapters are initialized so health checks work even if no command has been run yet.
-	local godoc = require("godoc")
-	godoc._ensure_initialized()
+  -- Ensure adapters are initialized so health checks work even if no command has been run yet.
+  local godoc = require("godoc")
+  godoc._ensure_initialized()
 
-	for _, adapter in pairs(godoc._adapters) do
-		-- Get adapter name for display
-		local name = adapter.command
-		health.start(name)
+  for _, adapter in pairs(godoc._adapters) do
+    -- Get adapter name for display
+    local name = adapter.command
+    health.start(name)
 
-		-- Run adapter health checks if available
-		if adapter.health then
-			local checks = adapter.health()
-			for _, check in ipairs(checks) do
-				if check.ok then
-					health.ok(check.message)
-				else
-					if check.optional then
-						health.warn(check.message)
-					else
-						health.error(check.message)
-					end
-				end
-			end
-		else
-			health.info("No health checks implemented")
-		end
-	end
+    -- Run adapter health checks if available
+    if adapter.health then
+      local checks = adapter.health()
+      for _, check in ipairs(checks) do
+        if check.ok then
+          health.ok(check.message)
+        else
+          if check.optional then
+            health.warn(check.message)
+          else
+            health.error(check.message)
+          end
+        end
+      end
+    else
+      health.info("No health checks implemented")
+    end
+  end
 end
 
 return M
