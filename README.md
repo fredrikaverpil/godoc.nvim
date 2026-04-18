@@ -415,3 +415,7 @@ improve on existing ones!
 
 Contributions are very much welcome! ❤️ Please feel free to submit a pull
 request.
+
+This project uses [Pocket](https://github.com/fredrikaverpil/pocket) for
+formatting and linting tasks. Run `./pok` to execute all tasks, or `./pok -h` to
+see available tasks.
