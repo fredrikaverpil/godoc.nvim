@@ -224,7 +224,12 @@ local function register_eager(adapter_config)
   local syntax = final_adapter.get_syntax_info()
   vim.treesitter.language.register(syntax.language, { syntax.filetype })
   M._adapters[final_adapter.command] = final_adapter
-  register_command(final_adapter.command)
+
+  -- Skip if a command with this name already exists (e.g., registered
+  -- by another plugin, or the user's vimrc) — don't clobber.
+  if vim.fn.exists(":" .. final_adapter.command) == 0 then
+    register_command(final_adapter.command)
+  end
 end
 
 -- Set up the plugin with user config
