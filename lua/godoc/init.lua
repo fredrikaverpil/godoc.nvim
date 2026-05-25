@@ -310,9 +310,7 @@ function M.setup(opts)
       if vim.fn.exists(":" .. command) == 0 then
         register_command(command)
       end
-    elseif
-      adapter_config.setup and type(adapter_config.setup) == "function"
-    then
+    elseif is_third_party_adapter(adapter_config) then
       -- Third-party adapter without opts.command — must call setup() to learn the command name
       register_eager(adapter_config)
     end
