@@ -182,16 +182,6 @@ require("godoc").setup({
 })
 ```
 
-> [!NOTE]
->
-> Once you call `setup()`, your configuration is the single source of truth for
-> which commands exist: the auto-registered `:GoDoc` is removed and the commands
-> are registered from your `adapters` list. If your config keeps the default
-> (the go adapter mapped to `"GoDoc"`), `:GoDoc` is re-registered as expected. If
-> you rename the go adapter's command (e.g., `command = "GoDocs"`), only `:GoDocs`
-> is registered and `:GoDoc` no longer exists. This is independent of whether
-> `setup()` runs before or after the plugin is sourced.
-
 See the source for further details:
 
 - Go adapter: [lua/godoc/adapters/go.lua](lua/godoc/adapters/go.lua)
