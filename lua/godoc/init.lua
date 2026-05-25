@@ -242,6 +242,12 @@ function M.setup(opts)
     M.config.adapters = opts.adapters
   end
 
+  -- Discard adapters initialized from a previous/default configuration. This
+  -- lets setup() take effect even if :GoDoc or :checkhealth already triggered
+  -- lazy initialization before the user configuration was applied.
+  M._adapters = {}
+  M._lazy_initialized = false
+
   -- Tell plugin/godoc.lua that the user owns the plugin — it should not
   -- auto-register :GoDoc (in case plugin scripts load after user init).
   vim.g._godoc_user_configured = true
