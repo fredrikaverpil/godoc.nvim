@@ -50,7 +50,16 @@ local function configure_adapters(config)
 
   for _, adapter_config in ipairs(config.adapters) do
     if type(adapter_config) == "table" then
-      if adapter_config.setup and type(adapter_config.setup) == "function" then
+      local is_third_party = adapter_config.setup
+        and type(adapter_config.setup) == "function"
+      local has_command = (adapter_config.opts and adapter_config.opts.command)
+        or adapter_config.command
+
+      if is_third_party and not has_command then
+        -- Already initialized eagerly by register_eager in setup(): its command
+        -- name is only known after calling setup(), so calling setup() again
+        -- here would duplicate any side effects and re-emit validation warnings.
+      elseif is_third_party then
         -- Handle third-party adapter
         local default_adapter = adapter_config.setup() -- Get default adapter implementation
         local final_adapter =
