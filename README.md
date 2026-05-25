@@ -184,12 +184,13 @@ require("godoc").setup({
 
 > [!NOTE]
 >
-> Calling `setup()` does not disturb the auto-registered `:GoDoc` unless your
-> config explicitly claims the `"GoDoc"` command name for a specific adapter —
-> in which case that adapter takes it over. This way you can rename the go
-> adapter's command (e.g., `command = "GoDocs"`) and still keep the built-in
-> `:GoDoc` running the defaults alongside, or reassign `:GoDoc` to a different
-> adapter entirely if that's what you want.
+> Once you call `setup()`, your configuration is the single source of truth for
+> which commands exist: the auto-registered `:GoDoc` is removed and the commands
+> are registered from your `adapters` list. If your config keeps the default
+> (the go adapter mapped to `"GoDoc"`), `:GoDoc` is re-registered as expected. If
+> you rename the go adapter's command (e.g., `command = "GoDocs"`), only `:GoDocs`
+> is registered and `:GoDoc` no longer exists. This is independent of whether
+> `setup()` runs before or after the plugin is sourced.
 
 See the source for further details:
 
