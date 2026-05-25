@@ -23,7 +23,7 @@ if vim.fn.exists(":GoDoc") > 0 then
 end
 
 vim.api.nvim_create_user_command("GoDoc", function(args)
-  require("godoc")._run_default_go(args)
+  require("godoc")._dispatch_command(args)
 end, { nargs = "?", desc = "Fuzzy search Go packages/symbols and view docs" })
 
 -- Record the name we registered so setup() can remove exactly this command

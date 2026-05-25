@@ -166,31 +166,12 @@ local function dispatch(adapter, args)
   end)
 end
 
---- Create a user command that delegates to the given adapter.
---- @param command string
-local function register_command(command)
-  vim.api.nvim_create_user_command(command, function(args)
-    M._ensure_initialized()
-
-    local adapter = M._adapters[command]
-    if not adapter then
-      vim.notify(
-        "No adapter found for command: " .. command,
-        vim.log.levels.ERROR
-      )
-      return
-    end
-
-    dispatch(adapter, args)
-  end, { nargs = "?" })
-end
-
---- Entry point for the command auto-registered by plugin/godoc.lua, so it works
---- out-of-the-box without the user calling setup(). Initializes the default
---- adapters lazily (_ensure_initialized falls back to M.defaults) and dispatches
---- the adapter whose command matches the one that was invoked.
+--- Command callback shared by setup()-registered commands and the command
+--- auto-registered in plugin/godoc.lua. Looks up the adapter by the invoked
+--- command name and dispatches to it, initializing adapters lazily on first use
+--- so the plugin works even when setup() was never called.
 --- @param args table command arguments table from nvim_create_user_command
-function M._run_default_go(args)
+function M._dispatch_command(args)
   M._ensure_initialized()
 
   local adapter = M._adapters[args.name]
@@ -203,6 +184,16 @@ function M._run_default_go(args)
   end
 
   dispatch(adapter, args)
+end
+
+--- Create a user command that delegates to its matching adapter.
+--- @param command string
+local function register_command(command)
+  vim.api.nvim_create_user_command(
+    command,
+    M._dispatch_command,
+    { nargs = "?" }
+  )
 end
 
 --- Eagerly initialize a single adapter and register its command.
