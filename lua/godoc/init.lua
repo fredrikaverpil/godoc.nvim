@@ -185,32 +185,22 @@ local function register_command(command)
   end, { nargs = "?" })
 end
 
---- Run the built-in go adapter. Entry point for plugin/godoc.lua's :GoDoc so
---- that the command works out-of-the-box without the user calling setup().
---- Honors user overrides from M.config.adapters when setup() has been called.
+--- Entry point for the command auto-registered by plugin/godoc.lua, so it works
+--- out-of-the-box without the user calling setup(). Initializes the default
+--- adapters lazily (_ensure_initialized falls back to M.defaults) and dispatches
+--- the adapter whose command matches the one that was invoked.
 --- @param args table command arguments table from nvim_create_user_command
 function M._run_default_go(args)
-  local config = M.config or M.defaults
-  local adapters = require("godoc.adapters")
+  M._ensure_initialized()
 
-  local default_adapter = adapters.get_adapter("go")
-  if not default_adapter then
-    vim.notify("Built-in go adapter not available", vim.log.levels.ERROR)
+  local adapter = M._adapters[args.name]
+  if not adapter then
+    vim.notify(
+      "No adapter found for command: " .. args.name,
+      vim.log.levels.ERROR
+    )
     return
   end
-
-  -- Apply user's go adapter overrides (if any) so customizations propagate to :GoDoc.
-  local go_opts
-  for _, adapter_config in ipairs(config.adapters or {}) do
-    if adapter_config.name == "go" then
-      go_opts = adapter_config.opts
-      break
-    end
-  end
-  local adapter = adapters.override_adapter(default_adapter, go_opts)
-
-  local syntax = adapter.get_syntax_info()
-  vim.treesitter.language.register(syntax.language, { syntax.filetype })
 
   dispatch(adapter, args)
 end
