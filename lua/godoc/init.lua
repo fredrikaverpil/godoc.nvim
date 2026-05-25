@@ -244,15 +244,8 @@ end
 --- @param adapter_config table
 local function register_eager(adapter_config)
   local adapters = require("godoc.adapters")
-  local default_adapter = adapter_config.setup()
-  local final_adapter =
-    adapters.override_adapter(default_adapter, adapter_config.opts)
-  local is_valid, error_message = adapters.validate_adapter(final_adapter)
-  if not is_valid then
-    vim.notify(
-      string.format("Invalid third-party adapter: %s", error_message),
-      vim.log.levels.WARN
-    )
+  local final_adapter = configure_third_party_adapter(adapter_config, adapters)
+  if not final_adapter then
     return
   end
   local syntax = final_adapter.get_syntax_info()
