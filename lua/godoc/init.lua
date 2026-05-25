@@ -232,6 +232,16 @@ end
 function M.setup(opts)
   M.config = vim.tbl_deep_extend("force", M.defaults, opts or {})
 
+  -- A user-supplied adapters list replaces the defaults wholesale rather than
+  -- being merged in. adapters is an ordered list, not a keyed map, so
+  -- positional merging is meaningless (and vim.tbl_deep_extend's handling of
+  -- list-like tables is not something we want to rely on). Setting it
+  -- explicitly keeps the contract obvious: provide adapters and you own the
+  -- whole list.
+  if opts and opts.adapters then
+    M.config.adapters = opts.adapters
+  end
+
   -- Tell plugin/godoc.lua that the user owns the plugin — it should not
   -- auto-register :GoDoc (in case plugin scripts load after user init).
   vim.g._godoc_user_configured = true
