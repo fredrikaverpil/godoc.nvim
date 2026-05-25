@@ -244,25 +244,15 @@ function M.setup(opts)
   -- auto-register :GoDoc (in case plugin scripts load after user init).
   vim.g._godoc_user_configured = true
 
-  -- If any adapter in the user's config explicitly claims the "GoDoc" command
-  -- name, remove the auto-registered :GoDoc so the loop below can assign it.
-  -- Otherwise leave :GoDoc alone — the user hasn't asked for it to change, so
-  -- it keeps serving the built-in default alongside any additional commands
-  -- they configure.
+  -- Remove the command auto-registered by plugin/godoc.lua so the loop below is
+  -- the single source of truth for which commands exist. This keeps the end
+  -- state independent of load order: whether setup() runs before or after
+  -- plugin/godoc.lua, the resulting commands are exactly what the config asks
+  -- for. If the config still maps an adapter to that name (the default), the
+  -- loop re-registers it; if the user renamed it, the old command is gone.
   if vim.g._godoc_auto_registered then
-    local user_claims_godoc = false
-    for _, adapter_config in ipairs(M.config.adapters) do
-      local cmd = (adapter_config.opts and adapter_config.opts.command)
-        or adapter_config.command
-      if cmd == "GoDoc" then
-        user_claims_godoc = true
-        break
-      end
-    end
-    if user_claims_godoc then
-      pcall(vim.api.nvim_del_user_command, "GoDoc")
-      vim.g._godoc_auto_registered = false
-    end
+    pcall(vim.api.nvim_del_user_command, vim.g._godoc_auto_registered)
+    vim.g._godoc_auto_registered = nil
   end
 
   for _, adapter_config in ipairs(M.config.adapters) do

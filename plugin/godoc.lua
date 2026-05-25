@@ -26,4 +26,6 @@ vim.api.nvim_create_user_command("GoDoc", function(args)
   require("godoc")._run_default_go(args)
 end, { nargs = "?", desc = "Fuzzy search Go packages/symbols and view docs" })
 
-vim.g._godoc_auto_registered = true
+-- Record the name we registered so setup() can remove exactly this command
+-- without having to spell the name itself.
+vim.g._godoc_auto_registered = "GoDoc"
