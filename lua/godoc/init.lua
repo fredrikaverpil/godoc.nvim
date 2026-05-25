@@ -42,7 +42,7 @@ end
 
 --- @param adapter_config GoDocAdapterConfig
 --- @return string?
-local function configured_command(adapter_config)
+local function adapter_command(adapter_config)
   return (adapter_config.opts and adapter_config.opts.command)
     or adapter_config.command
 end
@@ -115,7 +115,7 @@ local function configure_adapters(config)
 
       if is_third_party_adapter(adapter_config) then
         ---@cast adapter_config GoDocThirdPartyAdapter
-        if configured_command(adapter_config) then
+        if adapter_command(adapter_config) then
           adapter = configure_third_party_adapter(adapter_config, adapters)
         else
           -- Already initialized eagerly by register_eager in setup(): its command
@@ -141,6 +141,14 @@ local function configure_adapters(config)
   return configured_adapters
 end
 
+--- Register syntax highlighting metadata and remember the adapter by command.
+--- @param adapter GoDocAdapter
+local function activate_adapter(adapter)
+  local syntax = adapter.get_syntax_info()
+  vim.treesitter.language.register(syntax.language, { syntax.filetype })
+  M._adapters[adapter.command] = adapter
+end
+
 --- Lazy-initialize adapters and treesitter on first command use.
 --- Also called by health.lua so :checkhealth works before any command is run.
 function M._ensure_initialized()
@@ -155,9 +163,7 @@ function M._ensure_initialized()
   for _, adapter in ipairs(configured) do
     -- Skip adapters that were already eagerly initialized
     if not M._adapters[adapter.command] then
-      local syntax = adapter.get_syntax_info()
-      vim.treesitter.language.register(syntax.language, { syntax.filetype })
-      M._adapters[adapter.command] = adapter
+      activate_adapter(adapter)
     end
   end
 end
@@ -239,6 +245,14 @@ local function register_command(command)
   )
 end
 
+--- Register a user command unless something else already owns that name.
+--- @param command string
+local function register_command_if_available(command)
+  if vim.fn.exists(":" .. command) == 0 then
+    register_command(command)
+  end
+end
+
 --- Eagerly initialize a single adapter and register its command.
 --- Used for third-party adapters whose command name is only known at runtime.
 --- @param adapter_config table
@@ -248,15 +262,8 @@ local function register_eager(adapter_config)
   if not final_adapter then
     return
   end
-  local syntax = final_adapter.get_syntax_info()
-  vim.treesitter.language.register(syntax.language, { syntax.filetype })
-  M._adapters[final_adapter.command] = final_adapter
-
-  -- Skip if a command with this name already exists (e.g., registered
-  -- by another plugin, or the user's vimrc) — don't clobber.
-  if vim.fn.exists(":" .. final_adapter.command) == 0 then
-    register_command(final_adapter.command)
-  end
+  activate_adapter(final_adapter)
+  register_command_if_available(final_adapter.command)
 end
 
 -- Set up the plugin with user config
@@ -296,13 +303,9 @@ function M.setup(opts)
   end
 
   for _, adapter_config in ipairs(M.config.adapters) do
-    local command = configured_command(adapter_config)
+    local command = adapter_command(adapter_config)
     if command then
-      -- Skip if a command with this name already exists (e.g., registered
-      -- by another plugin, or the user's vimrc) — don't clobber.
-      if vim.fn.exists(":" .. command) == 0 then
-        register_command(command)
-      end
+      register_command_if_available(command)
     elseif is_third_party_adapter(adapter_config) then
       -- Third-party adapter without opts.command — must call setup() to learn the command name
       register_eager(adapter_config)
