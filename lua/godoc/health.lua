@@ -5,17 +5,16 @@ local M = {}
 function M.check()
   health.start("godoc.nvim")
 
-  -- Check plugin setup
-  local config = require("godoc").config
-  if not config then
-    health.error("Plugin not configured")
-    return
+  -- Report configuration source. The plugin works without setup(): plugin/godoc.lua
+  -- auto-registers :GoDoc against the defaults, so "no setup()" is healthy, not an error.
+  local godoc = require("godoc")
+  if godoc.config then
+    health.ok("Plugin configured via setup()")
   else
-    health.ok("Plugin configured")
+    health.ok("Running with default configuration (setup() not called)")
   end
 
   -- Ensure adapters are initialized so health checks work even if no command has been run yet.
-  local godoc = require("godoc")
   godoc._ensure_initialized()
 
   for _, adapter in pairs(godoc._adapters) do

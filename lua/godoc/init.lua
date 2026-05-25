@@ -106,7 +106,9 @@ function M._ensure_initialized()
   end
   M._lazy_initialized = true
 
-  local configured = configure_adapters(M.config)
+  -- Fall back to defaults when setup() was never called so the auto-registered
+  -- :GoDoc (and :checkhealth) work out of the box.
+  local configured = configure_adapters(M.config or M.defaults)
   for _, adapter in ipairs(configured) do
     -- Skip adapters that were already eagerly initialized
     if not M._adapters[adapter.command] then
