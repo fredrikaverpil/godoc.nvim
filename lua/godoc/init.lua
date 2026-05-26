@@ -24,9 +24,9 @@ M.defaults = {
   },
 }
 
--- Final configuration (defaults + user-provided) after setup.
+-- Active configuration. Starts with defaults so :GoDoc works without setup().
 --- @type GoDocConfig
-M.config = nil
+M.config = vim.deepcopy(M.defaults)
 
 -- The configured adapters, keyed by command name.
 --- @type table<string, GoDocAdapter>
@@ -157,9 +157,7 @@ function M._ensure_initialized()
   end
   M._lazy_initialized = true
 
-  -- Fall back to defaults when setup() was never called so the auto-registered
-  -- :GoDoc (and :checkhealth) work out of the box.
-  local configured = configure_adapters(M.config or M.defaults)
+  local configured = configure_adapters(M.config)
   for _, adapter in ipairs(configured) do
     -- Skip adapters that were already eagerly initialized
     if not M._adapters[adapter.command] then
@@ -179,46 +177,39 @@ local function open_window(type)
 end
 
 --- Run the picker/documentation flow for the given adapter.
---- Uses M.config when setup() has been called, otherwise falls back to defaults
---- so plugin/godoc.lua's auto-registered :GoDoc works without setup().
 --- @param adapter GoDocAdapter
 --- @param args table command arguments table from nvim_create_user_command
 local function dispatch(adapter, args)
-  local config = M.config or M.defaults
-
   if args.args ~= nil and args.args ~= "" then
     M.show_documentation(adapter, args.args)
     return
   end
 
   local pickers = require("godoc.pickers")
-  local picker = pickers.get_picker(config.picker.type)
+  local picker = pickers.get_picker(M.config.picker.type)
   if not picker then
     vim.notify(
-      "Picker not implemented: " .. config.picker.type,
+      "Picker not implemented: " .. M.config.picker.type,
       vim.log.levels.ERROR
     )
     return
   end
 
   ---@type GoDocPicker
-  picker.show(adapter, config, function(data)
+  picker.show(adapter, M.config, function(data)
     if data.choice then
       if data.type == "show_documentation" then
-        open_window(config.window.type)
+        open_window(M.config.window.type)
         M.show_documentation(adapter, data.choice)
       elseif data.type == "goto_definition" then
-        open_window(config.window.type)
+        open_window(M.config.window.type)
         M.goto_definition(adapter, data.choice, picker.goto_definition)
       end
     end
   end)
 end
 
---- Command callback shared by setup()-registered commands and the command
---- auto-registered in plugin/godoc.lua. Looks up the adapter by the invoked
---- command name and dispatches to it, initializing adapters lazily on first use
---- so the plugin works even when setup() was never called.
+--- Command callback shared by setup()-registered commands and the auto command.
 --- @param args table command arguments table from nvim_create_user_command
 function M._dispatch_command(args)
   M._ensure_initialized()
@@ -245,12 +236,38 @@ local function register_command(command)
   )
 end
 
---- Register a user command unless something else already owns that name.
+--- Register a user command unless something else already owns that exact name.
 --- @param command string
+--- @return boolean
 local function register_command_if_available(command)
-  if vim.fn.exists(":" .. command) == 0 then
+  if vim.api.nvim_get_commands({})[command] == nil then
     register_command(command)
+    return true
   end
+
+  vim.notify(
+    string.format(
+      "Command :%s already exists; choose another adapter command in setup()",
+      command
+    ),
+    vim.log.levels.WARN
+  )
+  return false
+end
+
+--- Remove the zero-config command registered by plugin/godoc.lua, if present.
+local function remove_auto_command()
+  if vim.g.godoc_auto_command then
+    pcall(vim.api.nvim_del_user_command, vim.g.godoc_auto_command)
+    vim.g.godoc_auto_command = nil
+  end
+end
+
+--- Reset runtime state before applying user configuration.
+local function reset_runtime()
+  M._adapters = {}
+  M._lazy_initialized = false
+  remove_auto_command()
 end
 
 --- Eagerly initialize a single adapter and register its command.
@@ -277,26 +294,10 @@ function M.setup(opts)
     M.config.adapters = opts.adapters
   end
 
-  -- Discard adapters initialized from a previous/default configuration. This
-  -- lets setup() take effect even if :GoDoc or :checkhealth already triggered
-  -- lazy initialization before the user configuration was applied.
-  M._adapters = {}
-  M._lazy_initialized = false
-
-  -- Tell plugin/godoc.lua that the user owns the plugin — it should not
-  -- auto-register :GoDoc (in case plugin scripts load after user init).
-  vim.g._godoc_user_configured = true
-
-  -- Remove the command auto-registered by plugin/godoc.lua so the loop below is
-  -- the single source of truth for which commands exist. This keeps the end
-  -- state independent of load order: whether setup() runs before or after
-  -- plugin/godoc.lua, the resulting commands are exactly what the config asks
-  -- for. If the config still maps an adapter to that name (the default), the
-  -- loop re-registers it; if the user renamed it, the old command is gone.
-  if vim.g._godoc_auto_registered then
-    pcall(vim.api.nvim_del_user_command, vim.g._godoc_auto_registered)
-    vim.g._godoc_auto_registered = nil
-  end
+  -- Make setup() the single source of truth, even if the default :GoDoc command
+  -- or default adapters were initialized before user config was applied.
+  vim.g.godoc_user_configured = true
+  reset_runtime()
 
   for _, adapter_config in ipairs(M.config.adapters) do
     local command = adapter_command(adapter_config)
