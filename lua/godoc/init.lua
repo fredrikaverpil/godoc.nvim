@@ -152,49 +152,64 @@ local function open_window(type)
   end
 end
 
+--- Run the picker/documentation flow for the given adapter.
+--- @param adapter GoDocAdapter
+--- @param args table Command arguments table from nvim_create_user_command
+local function dispatch(adapter, args)
+  -- If args were passed, show documentation directly
+  if args.args ~= nil and args.args ~= "" then
+    M.show_documentation(adapter, args.args)
+    return
+  end
+
+  -- Show picker
+  local pickers = require("godoc.pickers")
+  local picker = pickers.get_picker(M.config.picker.type)
+  if not picker then
+    vim.notify(
+      "Picker not implemented: " .. M.config.picker.type,
+      vim.log.levels.ERROR
+    )
+    return
+  end
+
+  picker.show(adapter, M.config, function(data)
+    if data.choice then
+      if data.type == "show_documentation" then
+        open_window(M.config.window.type)
+        M.show_documentation(adapter, data.choice)
+      elseif data.type == "goto_definition" then
+        open_window(M.config.window.type)
+        M.goto_definition(adapter, data.choice, picker.goto_definition)
+      end
+    end
+  end)
+end
+
+--- Look up the adapter registered for the command and dispatch to it.
+--- Shared callback for all commands registered by this plugin.
+--- @param command string
+--- @param args table Command arguments table from nvim_create_user_command
+function M._dispatch_command(command, args)
+  M._ensure_initialized()
+
+  local adapter = M._adapters[command]
+  if not adapter then
+    vim.notify(
+      "No adapter found for command: " .. command,
+      vim.log.levels.ERROR
+    )
+    return
+  end
+
+  dispatch(adapter, args)
+end
+
 --- Create a user command that delegates to the given adapter.
 --- @param command string
 local function register_command(command)
   vim.api.nvim_create_user_command(command, function(args)
-    M._ensure_initialized()
-
-    local adapter = M._adapters[command]
-    if not adapter then
-      vim.notify(
-        "No adapter found for command: " .. command,
-        vim.log.levels.ERROR
-      )
-      return
-    end
-
-    -- If args were passed, show documentation directly
-    if args.args ~= nil and args.args ~= "" then
-      M.show_documentation(adapter, args.args)
-      return
-    end
-
-    -- Show picker
-    local pickers = require("godoc.pickers")
-    local picker = pickers.get_picker(M.config.picker.type)
-    if picker then
-      ---@type GoDocPicker
-      picker.show(adapter, M.config, function(data)
-        if data.choice then
-          if data.type == "show_documentation" then
-            open_window(M.config.window.type)
-            M.show_documentation(adapter, data.choice)
-          elseif data.type == "goto_definition" then
-            open_window(M.config.window.type)
-            M.goto_definition(adapter, data.choice, picker.goto_definition)
-          end
-        end
-      end)
-    else
-      vim.notify(
-        "Picker not implemented: " .. M.config.picker.type,
-        vim.log.levels.ERROR
-      )
-    end
+    M._dispatch_command(command, args)
   end, { nargs = "?" })
 end
 
