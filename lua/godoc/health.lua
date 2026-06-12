@@ -6,12 +6,10 @@ function M.check()
   health.start("godoc.nvim")
 
   -- Check plugin setup
-  local config = require("godoc").config
-  if not config then
-    health.error("Plugin not configured")
-    return
+  if vim.g.godoc_did_setup then
+    health.ok("Plugin configured via setup()")
   else
-    health.ok("Plugin configured")
+    health.ok("Using default configuration (setup() was not called)")
   end
 
   -- Ensure adapters are initialized so health checks work even if no command has been run yet.
