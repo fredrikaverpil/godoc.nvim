@@ -2,27 +2,7 @@ local M = {}
 
 -- Default configuration.
 --- @type GoDocConfig
-M.defaults = {
-  adapters = {
-    {
-      name = "go",
-      opts = { command = "GoDoc" },
-    },
-  },
-  window = {
-    type = "split", -- split, vsplit
-  },
-  picker = {
-    type = "native", -- native | telescope | snacks | mini | fzf_lua
-
-    -- see respective picker in lua/godoc/pickers for available options
-    native = {},
-    telescope = {},
-    snacks = {},
-    mini = {},
-    fzf_lua = {},
-  },
-}
+M.defaults = require("godoc.config").defaults
 
 -- Final configuration (defaults + user-provided) after setup.
 --- @type GoDocConfig
@@ -198,7 +178,7 @@ end
 -- Set up the plugin with user config
 --- @param opts? GoDocConfig
 function M.setup(opts)
-  M.config = vim.tbl_deep_extend("force", M.defaults, opts or {})
+  M.config = require("godoc.config").setup(opts)
 
   for _, adapter_config in ipairs(M.config.adapters) do
     local command = (adapter_config.opts and adapter_config.opts.command)
