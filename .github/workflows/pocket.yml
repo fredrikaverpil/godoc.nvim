@@ -27,6 +27,7 @@ jobs:
           go-version-file: .pocket/go.mod
           cache: false
       - name: Restore cache
+        id: cache-restore
         uses: actions/cache/restore@v5
         with:
           path: |
@@ -42,7 +43,7 @@ jobs:
         shell: bash
         run: ./pok -v -g -c
       - name: Save cache
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && steps.cache-restore.outputs.cache-hit != 'true'
         uses: actions/cache/save@v5
         with:
           path: |
