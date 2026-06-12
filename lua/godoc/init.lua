@@ -4,9 +4,10 @@ local M = {}
 --- @type GoDocConfig
 M.defaults = require("godoc.config").defaults
 
--- Final configuration (defaults + user-provided) after setup.
+-- Active configuration. Starts as the defaults so the plugin works without a
+-- setup() call; setup() replaces it with the merged user config.
 --- @type GoDocConfig
-M.config = nil
+M.config = vim.deepcopy(M.defaults)
 
 -- The configured adapters, keyed by command name.
 --- @type table<string, GoDocAdapter>
@@ -248,6 +249,18 @@ end
 --- @param opts? GoDocConfig
 function M.setup(opts)
   M.config = require("godoc.config").setup(opts)
+
+  -- The user's config now owns command registration; make sure
+  -- plugin/godoc.lua doesn't auto-register :GoDoc if it runs after us.
+  vim.g.godoc_did_setup = true
+
+  -- Reclaim the :GoDoc auto-registered by plugin/godoc.lua so that the
+  -- configured adapters decide which commands exist: giving the go adapter
+  -- another command name replaces the default :GoDoc.
+  if vim.g.godoc_auto_registered then
+    pcall(vim.api.nvim_del_user_command, "GoDoc")
+    vim.g.godoc_auto_registered = nil
+  end
 
   -- Support re-running setup() (e.g. when reloading config): drop adapters
   -- resolved from a previous call so the new config takes effect.

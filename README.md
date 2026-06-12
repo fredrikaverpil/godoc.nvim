@@ -6,8 +6,10 @@ Fuzzy search Go docs from within Neovim.
 
 > [!TIP]
 >
-> Extensible via adapters: bring your own language/data source (Python, Rust,
-> dad jokes — whatever you want to pick).
+> - **Works out of the box**: install the plugin and `:GoDoc` just works — no
+>   `setup()` call required. Loading is deferred until first use.
+> - **Extensible via adapters**: bring your own language/data source (Python,
+>   Rust, dad jokes — whatever you want to pick).
 
 ## Screenshots
 
@@ -50,9 +52,9 @@ _Screenshot is showing the Snacks picker._
 
 ## Installation
 
-Pick whichever plugin manager you use. The plugin is initialized by calling
-`require("godoc").setup()` — with lazy.nvim, `opts = {}` does this for you. See
-[Configuration](#configuration) for customization.
+Pick whichever plugin manager you use. `:GoDoc` works immediately after install
+— no `setup()` call required. See [Configuration](#configuration) if you want to
+customize.
 
 ### Using [lazy.nvim](https://github.com/folke/lazy.nvim)
 
@@ -67,9 +69,6 @@ Pick whichever plugin manager you use. The plugin is initialized by calling
     { "ibhagwan/fzf-lua" }, -- optional
   },
   build = "go install github.com/lotusirous/gostdsym/stdsym@latest", -- optional
-  cmd = { "GoDoc" }, -- optional
-  ft = "godoc", -- optional
-  opts = {}, -- see Configuration
 }
 ```
 
@@ -90,9 +89,6 @@ vim.pack.add({
   { src = "https://github.com/echasnovski/mini.pick" },
   { src = "https://github.com/ibhagwan/fzf-lua" },
 })
-
--- Initialize the plugin (required), see Configuration
-require("godoc").setup()
 ```
 
 Optionally install [`stdsym`](https://github.com/lotusirous/gostdsym) (enables
@@ -125,11 +121,6 @@ Plug 'echasnovski/mini.pick'
 Plug 'ibhagwan/fzf-lua'
 
 Plug 'fredrikaverpil/godoc.nvim'
-
-" Initialize the plugin (required), see Configuration
-lua <<EOF
-require('godoc').setup()
-EOF
 ```
 
 ## Usage
@@ -149,15 +140,30 @@ The built-in `go` adapter provides:
 
 > [!WARNING]
 >
-> `:GoDoc` is also used by [ray-x/go.nvim](https://github.com/ray-x/go.nvim). To
-> avoid the collision, either pass `remap_commands = { GoDoc = false }` to
-> go.nvim or rename the godoc.nvim command (see
-> [Configuration](#configuration)).
+> `:GoDoc` is also used by [ray-x/go.nvim](https://github.com/ray-x/go.nvim). If
+> another plugin registers `:GoDoc` first, godoc.nvim leaves it alone. To avoid
+> the collision, either pass `remap_commands = { GoDoc = false }` to go.nvim or
+> rename the godoc.nvim command (see [Configuration](#configuration)).
 
 ## Configuration
 
-The plugin is initialized by calling `setup()` — any options you omit fall back
-to the defaults below.
+`:GoDoc` works with defaults out of the box. Call `setup()` only if you want to
+customize behavior — any options you omit fall back to the defaults below. Your
+`adapters` list then decides which commands exist: giving the go adapter a
+different command name replaces the default `:GoDoc`.
+
+> [!NOTE]
+>
+> With vim-plug (or any other Vimscript-based config), wrap the `setup()` call
+> in a Lua heredoc:
+>
+> ```vim
+> lua <<EOF
+> require("godoc").setup({
+>   -- your options
+> })
+> EOF
+> ```
 
 ```lua
 require("godoc").setup({
