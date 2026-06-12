@@ -249,6 +249,11 @@ end
 function M.setup(opts)
   M.config = require("godoc.config").setup(opts)
 
+  -- Support re-running setup() (e.g. when reloading config): drop adapters
+  -- resolved from a previous call so the new config takes effect.
+  M._adapters = {}
+  M._lazy_initialized = false
+
   for _, adapter_config in ipairs(M.config.adapters) do
     local command = adapter_command(adapter_config)
     if command then
