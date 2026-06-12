@@ -219,6 +219,13 @@ function M.setup(opts)
       ---@cast adapter_config GoDocThirdPartyAdapter
       -- Third-party adapter without opts.command — must call setup() to learn the command name
       register_eager(adapter_config)
+    elseif adapter_config.name then
+      ---@cast adapter_config GoDocBuiltinAdapter
+      -- Built-in adapter without opts.command — use the adapter's default command name
+      local adapter = configure_builtin_adapter(adapter_config)
+      if adapter then
+        register_command(adapter.command)
+      end
     end
   end
 end
