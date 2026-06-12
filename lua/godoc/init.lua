@@ -14,10 +14,72 @@ M._adapters = {}
 
 M._lazy_initialized = false
 
---- @param config GoDocConfig
-local function configure_adapters(config)
-  local adapters = require("godoc.adapters")
+--- @param adapter_config GoDocAdapterConfig
+--- @return boolean
+local function is_third_party_adapter(adapter_config)
+  return type(adapter_config.setup) == "function"
+end
 
+--- The command name declared in the adapter config, if any.
+--- @param adapter_config GoDocAdapterConfig
+--- @return string?
+local function adapter_command(adapter_config)
+  return (adapter_config.opts and adapter_config.opts.command)
+    or adapter_config.command
+end
+
+--- @param adapter_config GoDocThirdPartyAdapter
+--- @return GoDocAdapter?
+local function configure_third_party_adapter(adapter_config)
+  local adapters = require("godoc.adapters")
+  local default_adapter = adapter_config.setup()
+  local final_adapter =
+    adapters.override_adapter(default_adapter, adapter_config.opts)
+  local is_valid, error_message = adapters.validate_adapter(final_adapter)
+  if not is_valid then
+    vim.notify(
+      string.format("Invalid third-party adapter: %s", error_message),
+      vim.log.levels.WARN
+    )
+    return nil
+  end
+  return final_adapter
+end
+
+--- @param adapter_config GoDocBuiltinAdapter
+--- @return GoDocAdapter?
+local function configure_builtin_adapter(adapter_config)
+  local adapters = require("godoc.adapters")
+  local default_adapter = adapters.get_adapter(adapter_config.name)
+  if default_adapter == nil then
+    vim.notify(
+      string.format("Adapter %s not found", adapter_config.name),
+      vim.log.levels.WARN
+    )
+    return nil
+  end
+  return adapters.override_adapter(default_adapter, adapter_config.opts)
+end
+
+--- @param adapter_config GoDocUserAdapter
+--- @return GoDocAdapter?
+local function configure_user_adapter(adapter_config)
+  local adapters = require("godoc.adapters")
+  local is_valid, error_message = adapters.validate_adapter(adapter_config)
+  if not is_valid then
+    vim.notify(
+      string.format("Invalid user-defined adapter: %s", error_message),
+      vim.log.levels.WARN
+    )
+    return nil
+  end
+  return adapter_config
+end
+
+--- Resolve each adapter config into a ready-to-use adapter.
+--- @param config GoDocConfig
+--- @return GoDocAdapter[]
+local function configure_adapters(config)
   if not config.adapters or type(config.adapters) ~= "table" then
     vim.notify(
       "Invalid configuration: adapters must be a list",
@@ -30,52 +92,32 @@ local function configure_adapters(config)
 
   for _, adapter_config in ipairs(config.adapters) do
     if type(adapter_config) == "table" then
-      if adapter_config.setup and type(adapter_config.setup) == "function" then
-        -- Handle third-party adapter
-        local default_adapter = adapter_config.setup() -- Get default adapter implementation
-        local final_adapter =
-          adapters.override_adapter(default_adapter, adapter_config.opts)
-        local is_valid, error_message = adapters.validate_adapter(final_adapter)
-        if is_valid then
-          table.insert(configured_adapters, final_adapter)
-        else
-          vim.notify(
-            string.format("Invalid third-party adapter: %s", error_message),
-            vim.log.levels.WARN
-          )
-        end
-      elseif
-        adapter_config.name and adapters.has_adapter(adapter_config.name)
-      then
-        -- Handle built-in adapter
-        local default_adapter = adapters.get_adapter(adapter_config.name)
-        if default_adapter ~= nil then
-          local final_adapter =
-            adapters.override_adapter(default_adapter, adapter_config.opts)
-          table.insert(configured_adapters, final_adapter)
-        else
-          vim.notify(
-            string.format("Adapter %s not found", adapter_config.name),
-            vim.log.levels.WARN
-          )
-        end
+      local adapter
+      if is_third_party_adapter(adapter_config) then
+        ---@cast adapter_config GoDocThirdPartyAdapter
+        adapter = configure_third_party_adapter(adapter_config)
+      elseif adapter_config.name then
+        ---@cast adapter_config GoDocBuiltinAdapter
+        adapter = configure_builtin_adapter(adapter_config)
       else
-        -- Handle user-defined adapter
-        local is_valid, error_message =
-          adapters.validate_adapter(adapter_config)
-        if is_valid then
-          table.insert(configured_adapters, adapter_config)
-        else
-          vim.notify(
-            string.format("Invalid user-defined adapter: %s", error_message),
-            vim.log.levels.WARN
-          )
-        end
+        ---@cast adapter_config GoDocUserAdapter
+        adapter = configure_user_adapter(adapter_config)
+      end
+      if adapter then
+        table.insert(configured_adapters, adapter)
       end
     end
   end
 
   return configured_adapters
+end
+
+--- Register syntax highlighting and remember the adapter by command name.
+--- @param adapter GoDocAdapter
+local function activate_adapter(adapter)
+  local syntax = adapter.get_syntax_info()
+  vim.treesitter.language.register(syntax.language, { syntax.filetype })
+  M._adapters[adapter.command] = adapter
 end
 
 --- Lazy-initialize adapters and treesitter on first command use.
@@ -90,9 +132,7 @@ function M._ensure_initialized()
   for _, adapter in ipairs(configured) do
     -- Skip adapters that were already eagerly initialized
     if not M._adapters[adapter.command] then
-      local syntax = adapter.get_syntax_info()
-      vim.treesitter.language.register(syntax.language, { syntax.filetype })
-      M._adapters[adapter.command] = adapter
+      activate_adapter(adapter)
     end
   end
 end
@@ -155,24 +195,14 @@ end
 
 --- Eagerly initialize a single adapter and register its command.
 --- Used for third-party adapters whose command name is only known at runtime.
---- @param adapter_config table
+--- @param adapter_config GoDocThirdPartyAdapter
 local function register_eager(adapter_config)
-  local adapters = require("godoc.adapters")
-  local default_adapter = adapter_config.setup()
-  local final_adapter =
-    adapters.override_adapter(default_adapter, adapter_config.opts)
-  local is_valid, error_message = adapters.validate_adapter(final_adapter)
-  if not is_valid then
-    vim.notify(
-      string.format("Invalid third-party adapter: %s", error_message),
-      vim.log.levels.WARN
-    )
+  local adapter = configure_third_party_adapter(adapter_config)
+  if not adapter then
     return
   end
-  local syntax = final_adapter.get_syntax_info()
-  vim.treesitter.language.register(syntax.language, { syntax.filetype })
-  M._adapters[final_adapter.command] = final_adapter
-  register_command(final_adapter.command)
+  activate_adapter(adapter)
+  register_command(adapter.command)
 end
 
 -- Set up the plugin with user config
@@ -181,14 +211,12 @@ function M.setup(opts)
   M.config = require("godoc.config").setup(opts)
 
   for _, adapter_config in ipairs(M.config.adapters) do
-    local command = (adapter_config.opts and adapter_config.opts.command)
-      or adapter_config.command
+    local command = adapter_command(adapter_config)
     if command then
       -- Command name known from config — register lazily
       register_command(command)
-    elseif
-      adapter_config.setup and type(adapter_config.setup) == "function"
-    then
+    elseif is_third_party_adapter(adapter_config) then
+      ---@cast adapter_config GoDocThirdPartyAdapter
       -- Third-party adapter without opts.command — must call setup() to learn the command name
       register_eager(adapter_config)
     end
