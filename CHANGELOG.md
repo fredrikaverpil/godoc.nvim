@@ -1,5 +1,16 @@
 # Changelog
 
+## [4.0.0](https://github.com/fredrikaverpil/godoc.nvim/compare/v3.0.1...v4.0.0) (2026-06-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* work out of the box without setup() ([#62](https://github.com/fredrikaverpil/godoc.nvim/issues/62))
+
+### Features
+
+* work out of the box without setup() ([#62](https://github.com/fredrikaverpil/godoc.nvim/issues/62)) ([a68bf57](https://github.com/fredrikaverpil/godoc.nvim/commit/a68bf571efbc8b73cd44c4dda790d15c621d72ec))
+
 ## [3.0.1](https://github.com/fredrikaverpil/godoc.nvim/compare/v3.0.0...v3.0.1) (2026-04-18)
 
 
