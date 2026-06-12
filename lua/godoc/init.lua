@@ -12,6 +12,11 @@ M.config = nil
 --- @type table<string, GoDocAdapter>
 M._adapters = {}
 
+-- Commands registered by this plugin, so re-running setup() can tell its
+-- own commands apart from ones owned by other plugins or the user's config.
+--- @type table<string, boolean>
+M._registered_commands = {}
+
 M._lazy_initialized = false
 
 --- @param adapter_config GoDocAdapterConfig
@@ -205,12 +210,26 @@ function M._dispatch_command(command, args)
   dispatch(adapter, args)
 end
 
---- Create a user command that delegates to the given adapter.
+--- Create a user command that delegates to the given adapter, unless the
+--- command name is already taken by something outside this plugin.
 --- @param command string
 local function register_command(command)
+  local exists = vim.api.nvim_get_commands({})[command] ~= nil
+  if exists and not M._registered_commands[command] then
+    vim.notify(
+      string.format(
+        "Command :%s already exists; godoc.nvim will not overwrite it",
+        command
+      ),
+      vim.log.levels.WARN
+    )
+    return
+  end
+
   vim.api.nvim_create_user_command(command, function(args)
     M._dispatch_command(command, args)
   end, { nargs = "?" })
+  M._registered_commands[command] = true
 end
 
 --- Eagerly initialize a single adapter and register its command.
