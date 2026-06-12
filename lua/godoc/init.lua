@@ -95,7 +95,12 @@ local function configure_adapters(config)
       local adapter
       if is_third_party_adapter(adapter_config) then
         ---@cast adapter_config GoDocThirdPartyAdapter
-        adapter = configure_third_party_adapter(adapter_config)
+        -- Third-party adapters without an explicit command were already
+        -- initialized eagerly by setup(); re-running their setup() here
+        -- would duplicate its side effects.
+        if adapter_command(adapter_config) then
+          adapter = configure_third_party_adapter(adapter_config)
+        end
       elseif adapter_config.name then
         ---@cast adapter_config GoDocBuiltinAdapter
         adapter = configure_builtin_adapter(adapter_config)
