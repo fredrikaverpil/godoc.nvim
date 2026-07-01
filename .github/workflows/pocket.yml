@@ -28,7 +28,7 @@ jobs:
           cache: false
       - name: Restore cache
         id: cache-restore
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: |
             ~/.cache/go-build
@@ -44,7 +44,7 @@ jobs:
         run: ./pok -v -g -c
       - name: Save cache
         if: (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master') && steps.cache-restore.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           path: |
             ~/.cache/go-build
