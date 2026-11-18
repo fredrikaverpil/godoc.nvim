@@ -43,7 +43,8 @@
 --- @field language string The treesitter language to use for syntax highlighting
 
 --- @class GoDocWindowConfig
---- @field type "split"|"vsplit" The type of window to open
+--- @field type "split"|"vsplit"|"float" The type of window to open
+--- @field float? vim.api.keyset.win_config Options for the float window, passed to nvim_open_win()
 
 --- @class GoDocCallbackData
 --- @field type "show_documentation" | "goto_definition"
