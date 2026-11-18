@@ -306,11 +306,6 @@ function M.show_documentation(adapter, item)
   )
 
   vim.api.nvim_set_current_buf(buf)
-
-  -- Set up keymaps for the documentation window
-  local opts = { noremap = true, silent = true, buffer = buf }
-  vim.keymap.set("n", "q", "<cmd>close<CR>", opts)
-  vim.keymap.set("n", "<Esc>", "<cmd>close<CR>", opts)
 end
 
 --- Go to definition on chosen item
