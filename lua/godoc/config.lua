@@ -10,7 +10,10 @@ M.defaults = {
     },
   },
   window = {
-    type = "split", -- split, vsplit
+    type = "split", -- split | vsplit | float
+
+    -- nvim_open_win() config for the float window, see :h nvim_open_win()
+    float = {},
   },
   picker = {
     type = "native", -- native | telescope | snacks | mini | fzf_lua
@@ -24,7 +27,7 @@ M.defaults = {
   },
 }
 
-local window_types = { "split", "vsplit" }
+local window_types = { "split", "vsplit", "float" }
 local picker_types = { "native", "telescope", "snacks", "mini", "fzf_lua" }
 
 --- Notify about invalid configuration values.
