@@ -148,13 +148,36 @@ function M._ensure_initialized()
   end
 end
 
---- Open window based on split type
---- @param type 'split' | 'vsplit'
-local function open_window(type)
-  if type == "split" or type == "vsplit" then
-    vim.cmd(type)
+--- Open a centered float window, sized to 80% of the editor by default.
+--- @param opts? vim.api.keyset.win_config Overrides for nvim_open_win()
+local function open_float(opts)
+  opts = opts or {}
+  local width = opts.width or math.floor(vim.o.columns * 0.8)
+  local height = opts.height or math.floor(vim.o.lines * 0.8)
+  local config = vim.tbl_extend("force", {
+    relative = "editor",
+    width = width,
+    height = height,
+    row = math.floor((vim.o.lines - height) / 2),
+    col = math.floor((vim.o.columns - width) / 2),
+    style = "minimal",
+  }, opts)
+
+  -- Placeholder buffer, replaced by the documentation buffer.
+  local buf = vim.api.nvim_create_buf(false, true)
+  vim.api.nvim_set_option_value("bufhidden", "wipe", { buf = buf })
+  vim.api.nvim_open_win(buf, true, config)
+end
+
+--- Open window based on window type
+--- @param window GoDocWindowConfig
+local function open_window(window)
+  if window.type == "split" or window.type == "vsplit" then
+    vim.cmd(window.type)
+  elseif window.type == "float" then
+    open_float(window.float)
   else
-    vim.notify("Invalid window type: " .. type, vim.log.levels.ERROR)
+    vim.notify("Invalid window type: " .. window.type, vim.log.levels.ERROR)
   end
 end
 
@@ -182,10 +205,10 @@ local function dispatch(adapter, args)
   picker.show(adapter, M.config, function(data)
     if data.choice then
       if data.type == "show_documentation" then
-        open_window(M.config.window.type)
+        open_window(M.config.window)
         M.show_documentation(adapter, data.choice)
       elseif data.type == "goto_definition" then
-        open_window(M.config.window.type)
+        open_window(M.config.window)
         M.goto_definition(adapter, data.choice, picker.goto_definition)
       end
     end

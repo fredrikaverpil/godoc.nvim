@@ -182,7 +182,11 @@ require("godoc").setup({
     },
   },
   window = {
-    type = "split", -- split | vsplit
+    type = "split", -- split | vsplit | float
+
+    -- nvim_open_win() options for the float window (see :h nvim_open_win()),
+    -- e.g. { width = 100, height = 30, border = "rounded" }
+    float = {},
   },
   picker = {
     type = "native", -- native (vim.ui.select) | telescope | snacks | mini | fzf_lua
