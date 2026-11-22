@@ -1,0 +1,27 @@
+[settings]
+lockfile = true
+minimum_release_age = "3d"
+
+[tools]
+rumdl = "0.2.52"
+stylua = "2.5.2"
+
+# Markdown
+
+[tasks."md:lint"]
+description = "Lint Markdown files, with fixes"
+run = "rumdl check --fix ."
+
+# Lua
+
+[tasks."lua:format"]
+description = "Format Lua files"
+run = "stylua ."
+
+# Tasks that write files run one at a time.
+[tasks.default]
+description = "Run all checks"
+run = [
+  { task = "md:lint" },
+  { task = "lua:format" },
+]

@@ -405,6 +405,5 @@ Runs the health checks associated with every enabled adapter that provides one.
 Contributions are very much welcome! ❤️ Please feel free to submit a pull
 request.
 
-This project uses [Pocket](https://github.com/fredrikaverpil/pocket) for
-formatting and linting tasks. Run `./pok` to execute all tasks, or `./pok -h` to
-see available tasks.
+This project uses [mise](https://mise.jdx.dev) for formatting and linting tasks.
+Run `mise tasks` to see available tasks, and `mise run` to run all of them.
