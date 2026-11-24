@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.0.1](https://github.com/fredrikaverpil/godoc.nvim/compare/v4.0.0...v4.0.1) (2026-11-23)
+
+
+### Bug Fixes
+
+* don't override q and &lt;Esc&gt; in the doc buffer ([#70](https://github.com/fredrikaverpil/godoc.nvim/issues/70)) ([3e4f68d](https://github.com/fredrikaverpil/godoc.nvim/commit/3e4f68d94a69a868d9d83fc23708861688267618))
+
 ## [4.0.0](https://github.com/fredrikaverpil/godoc.nvim/compare/v3.0.1...v4.0.0) (2026-06-12)
 
 
